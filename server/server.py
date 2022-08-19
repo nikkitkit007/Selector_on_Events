@@ -1,7 +1,28 @@
 import sys
 # import requests
-# import data.bd_worker as bd
+import psycopg2
+
+import data.bd_worker as db
 from flask import Flask, request
+import re
+
+DB = db.DB_PostgreSQL()
+
+
+def check_mail(mail_address):
+    regex_mail = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+    if re.fullmatch(regex_mail, mail_address):
+        return True
+    else:
+        return False
+
+
+def check_phone(phone):
+    regex_phone = re.compile(r'')
+    if re.fullmatch(regex_phone, phone):
+        return True
+    else:
+        return False
 
 
 app = Flask(__name__)
@@ -37,15 +58,20 @@ def update_event():
 
 
 @app.route('/api/add_user', methods=["POST"])
-def update_event():
-    if request.method == "POST":
-
-        pass
-    else:
-        pass
-    name = request.json["name"]
-    return name[::]
+def add_user():
+    # print(request.values)
+    if not check_phone(request.values['phone']):
+        return 'Wrong phone', 400
+    if not check_mail(request.values['mail']):
+        return 'Wrong mail', 400
+    try:
+        DB.add_user(request.values)
+    except psycopg2.Error as E:
+        return 'Error with db {}'.format(E), 400
+    except Exception as E:
+        return str(E), 400
 
 
 if __name__ == '__main__':
-    app.run(debug=True)         # to see mistakes
+    app.run()         # to see mistakes
+
