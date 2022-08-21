@@ -3,10 +3,11 @@
 # https://metanit.com/sql/postgresql/5.1.php
 # https://postgrespro.ru/docs/postgresql/9.6/plpython-database
 
+# https://questu.ru/questions/31796332/ - really cool
+
 import config
 import psycopg2
-
-# проверить varchar в таблицах
+import psycopg2.extras
 
 
 class DB_PostgreSQL(object):
@@ -30,7 +31,8 @@ class DB_PostgreSQL(object):
         self.connection = psycopg2.connect(database=config.DATABASE, user=config.USERNAME, password=config.PASSWORD,
                                            host=config.HOST,
                                            port=config.PORT)  # create connection
-        self.cur = self.connection.cursor()  # create cursor - object to manipulation with db
+        self.cur = self.connection.cursor(
+            cursor_factory=psycopg2.extras.DictCursor)  # create cursor - object to manipulation with db
         # print("Successfully connection to database: \"%s\" for user \"%s\"" % (config.DATABASE, config.USERNAME))
 
     def close_connection(self):
@@ -161,22 +163,25 @@ class DB_PostgreSQL(object):
 
     @open_close_connection
     def get_user(self, user_id):
+        # type(self.cur.fetchone())
         self.cur.execute(
             """SELECT * FROM %s.%s WHERE user_id=%d""" % (
                 self.schema_name, self.tbl_users, user_id))
         self.connection.commit()
-        data = self.cur.fetchall()
+        data = self.cur.fetchone()
         return data
 
-    @open_close_connection
-    def update_user(self, user_data_to_update):
+    @open_close_connection  # !!!!!
+    def update_user(self, user_id, user_data_to_update):
         try:
             user_SOMETHING = user_data_to_update
             self.cur.execute(
                 """UPDATE %s.%s
                 SET att_name = %s
-                """ % (self.schema_name, self.tbl_users, user_SOMETHING))
-            self.connection.commit()            # добавить вместо att_name массив и в цикле делать апдейт
+                WHERE user_is = %d;
+                """ % (self.schema_name, self.tbl_users, user_SOMETHING, user_id))
+
+            self.connection.commit()  # добавить вместо att_name массив и в цикле делать апдейт
         except Exception as E:
             print(E)
 
@@ -202,8 +207,6 @@ class DB_PostgreSQL(object):
             url_pdf = event_to_add['url_pdf']  # varchar
             people_count = event_to_add['people_count']
             coefficient = event_to_add['coefficient']
-            # users_id_want integer[]
-            # users_id_go integer[]
 
             self.cur.execute(
                 """INSERT INTO %s.%s(event_name, time_start, time_end, description, url_pdf, people_count, coefficient) 
@@ -220,9 +223,9 @@ class DB_PostgreSQL(object):
     def get_event(self, event_id):
         self.cur.execute(
             """SELECT * FROM %s.%s WHERE event_id=%d""" % (
-                self.schema_name, self.tbl_users, event_id))
+                self.schema_name, self.tbl_events, event_id))
         self.connection.commit()
-        data = self.cur.fetchall()
+        data = self.cur.fetchone()
         return data
 
     @open_close_connection
@@ -233,7 +236,7 @@ class DB_PostgreSQL(object):
                 """UPDATE %s.%s
                 SET att_name = %s
                 where event_id = %d
-                """ % (self.schema_name, self.tbl_users, event_SOMETHING, event_id))
+                """ % (self.schema_name, self.tbl_events, event_SOMETHING, event_id))
             self.connection.commit()  # добавить вместо att_name массив и в цикле делать апдейт
         except Exception as E:
             print(E)
@@ -244,7 +247,7 @@ class DB_PostgreSQL(object):
             self.cur.execute(
                 """DELETE FROM %s.%s
                 WHERE event_id = %s
-                """ % (self.schema_name, self.tbl_users, event_id))
+                """ % (self.schema_name, self.tbl_events, event_id))
             self.connection.commit()
         except Exception as E:
             print(E)
@@ -253,8 +256,6 @@ class DB_PostgreSQL(object):
     @open_close_connection
     def add_image(self, image_to_add):
         try:
-            # event_id integer references % s. % s(event_id)
-            # image varchar
             event_id = 0
             image = image_to_add['image']  # varchar
 
@@ -279,7 +280,10 @@ class DB_PostgreSQL(object):
         self.cur.execute(insert_query, item_tuple)
         self.connection.commit()
         data = self.cur.fetchall()
-        return data
+        all_data = []
+        for row in data:
+            all_data.append(dict(row))
+        return all_data
 
     @open_close_connection
     def update_image(self, image_data_to_update, event_id):
@@ -332,7 +336,7 @@ class DB_PostgreSQL(object):
             """SELECT * FROM %s.%s WHERE notify_id=%d;""" % (
                 self.schema_name, self.tbl_notifies, notify_id))
         self.connection.commit()
-        data = self.cur.fetchall()
+        data = self.cur.fetchone()
         return data
 
     @open_close_connection
@@ -385,7 +389,7 @@ class DB_PostgreSQL(object):
             """SELECT * FROM %s.%s WHERE news_id=%d;""" % (
                 self.schema_name, self.tbl_news, news_id))
         self.connection.commit()
-        data = self.cur.fetchall()
+        data = self.cur.fetchone()
         return data
 
     @open_close_connection
@@ -412,17 +416,89 @@ class DB_PostgreSQL(object):
             print(E)
 
 
-if __name__ == "__main__":
+def user_test():
+    # ---------------USER-test------------------
+    example_user_to_add_1 = {'user_id': 1, 'user_name': 'Nik', 'user_surname': 'Sul', 'user_patronymic': 'Serg',
+                             'phone': '8991', 'vk_link': 'http://', 'mail': 'nikkitkit@mail.ru',
+                             'is_russian_citizenship': True}
 
+    DB.add_user(example_user_to_add_1)
+    user_id_test = 1
+    user1 = DB.get_user(user_id_test)
+
+    print(user1['user_id'])
+    print(dict(user1))
+
+    DB.delete_user(user_id_test)
+    # user1 = DB.get_user(user_id_test)
+    # print(dict(user1))            # !ERROR because it's none
+    # user_data_for_update = {'user_name': 'Semen', 'user_surname': 'Sayd'}
+    # DB.update_user(user_id_test, user_data_for_update)
+    # print(DB.get_user(user_id_test))
+
+
+def event_test():
+    # ---------------EVENT-test------------------
+    example_event_to_add_1 = {'event_name': 'TEST',
+                              'time_start': '01-01-2022 00:00:00',
+                              'time_end': '01-01-2022 00:00:10',
+                              'description': 'Simple test',
+                              'url_pdf': 'http://lol',
+                              'people_count': 10,
+                              'coefficient': 50}
+
+    DB.add_event(example_event_to_add_1)
+    event1 = DB.get_event(1)
+    print(dict(event1))
+    DB.delete_event(1)
+
+
+def image_test():
+    pass
+
+
+def notify_test():
+    test_notify = {'time': '01-01-2022 00:00:00', 'notify_header': 'I am test notify', 'notify_data': 'Cool notify'}
+
+    DB.add_notify(test_notify)
+    notify1 = DB.get_notify(1)
+    try:
+        print(dict(notify1))
+    except:
+        print("Not found")
+    DB.delete_notify(1)
+
+
+def news_test():
+    test_news = {'header': 'I am test news', 'data': 'Lets go!', 'time': '01-01-2022 00:00:00'}
+
+    DB.add_news(test_news)
+    news1 = DB.get_news(1)
+    try:
+        print(dict(news1))
+    except:
+        print("Not found")
+    DB.delete_news(1)
+
+
+if __name__ == "__main__":
     DB = DB_PostgreSQL()
     DB.create_db()
 
-    example_user_to_add = {'user_id': 1, 'user_name': 'Nik', 'user_surname': 'Sul', 'user_patronymic': 'Serg',
-                           'phone': '8991', 'vk_link': 'http://', 'mail': 'nikkitkit@mail.ru',
-                           'is_russian_citizenship': True}
+    # user_test()
+    # event_test()
+    # image_test()
+    # news_test()
+    # notify_test()
 
-    DB.add_user(example_user_to_add)
-    user_id_test = 1
 
-    # DB.delete_user(user_id_test)
-    print(DB.get_user(user_id_test))
+
+
+
+
+
+    # print('''
+    #     INSERT INTO %s (%s)
+    #     VALUES (%%(%s)s );
+    #     '''
+    #       % ('tableName', ',  '.join(user_data_for_update), ")s, %(".join(user_data_for_update)))

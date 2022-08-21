@@ -15,17 +15,17 @@ TBL_NOTIFIES = "Notifies"
 TBL_NEWS = "News"
 
 # ----------users--------------
-# user_id
-# user_name
-# user_surname
-# user_patronymic
-# phone
-# vk_link
-# mail
-# is_russian_citizenship
-# score
-# ban_date
-# notify_id
+# user_id integer primary key not null
+# user_name varchar(255)
+# user_surname varchar(255)
+# user_patronymic varchar(255)
+# phone varchar(127)
+# vk_link varchar(255)
+# mail varchar(255)
+# is_russian_citizenship bool
+# score integer
+# ban_date TIMESTAMP
+# notify_id integer[]
 
 # ----------events---------------
 # event_id serial primary key not null
@@ -40,6 +40,7 @@ TBL_NEWS = "News"
 # users_id_go integer[]
 
 # ----------images---------------
+# image_id serial primary key not null
 # event_id integer references %s.%s(event_id)
 # image varchar
 
@@ -55,3 +56,16 @@ TBL_NEWS = "News"
 # data text
 # time TIMESTAMP
 
+# -----------------------------------
+# ----------server_func--------------
+# add_event
+# update_event
+# get_event
+#
+# apply_event
+# decline_event
+#
+# add_user
+# get_user_history
+# update_user
+#
