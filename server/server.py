@@ -1,9 +1,10 @@
-import sys
-# import requests
-import psycopg2
+# https://tokmakov.msk.ru/blog/item/41 - about regular expressions
 
-import data.db_worker as db
+import sys
+import psycopg2
 import server.services.selector as selector
+import config
+import data.db_worker as db
 from flask import Flask, request
 import re
 
@@ -12,7 +13,7 @@ DB = db.DB_PostgreSQL()
 
 
 def check_mail(mail_address):
-    regex_mail = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
+    regex_mail = re.compile(config.REGEX_MAIL)
     if re.fullmatch(regex_mail, mail_address):
         return True
     else:
@@ -20,7 +21,7 @@ def check_mail(mail_address):
 
 
 def check_phone(phone):
-    regex_phone = re.compile(r'')
+    regex_phone = re.compile(config.REGEX_PHONE)
     if re.fullmatch(regex_phone, phone):
         return True
     else:
@@ -38,51 +39,43 @@ def index():
 # ----------------------------------EVENT-----------------------------------
 
 
-@app.route('/api/add_event', methods=["POST"])
-def add_event():
+@app.route('/api/event_add', methods=["POST"])
+def event_add():
     event_to_add = request.values
     try:
-        DB.add_event(event_to_add)
+        DB.event_add(event_to_add)
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
 
-@app.route('/api/update_event', methods=["POST"])       # !!!!!!!
-def update_event():
-    """
-    :return:
-    """
-    # name, time_start, time_end,image,pdf, cost = request.values['event_name'], request.values[]
-    name = request.json["name"]
-    return name[::]
+@app.route('/api/event_update', methods=["POST"])
+def event_update():
+    event_id = request.values['event_id']
+    data_to_update = request.values
+    try:
+        DB.event_update(event_id, data_to_update)
+    except psycopg2.Error as E:
+        return 'Error with db {}'.format(E), 400
 
 
-@app.route('/api/get_event', methods=["POST"])
-def get_event():
+@app.route('/api/event_get', methods=["POST"])
+def event_get():
     event_id = request.values
     try:
-        DB.get_event(event_id)
+        DB.event_get(event_id)
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
 
-@app.route('/api/get_events')                       # !!!!!!!
-def get_events():
-    try:
-        # DB.get_events()
-        pass
-    except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
-
-
-@app.route('/api/delete_event', methods=["POST"])
-def delete_event():
+@app.route('/api/event_delete', methods=["POST"])
+def event_delete():
     event_id = request.values
     try:
-        DB.delete_event(event_id)
+        DB.event_delete(event_id)
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
+# --------------------------------------------------------------------------
 # -------------------------EVENT_apply/decline------------------------------
 
 
@@ -91,7 +84,12 @@ def apply_event():
     event_id = request.values['event_id']
     user_id = request.values['user_id']
     try:
-        DB.get_event(event_id)
+        DB.event_update_add_users_id_go(event_id, user_id)
+        # DB.selector.
+
+        DB.event_update_del_users_id_want(event_id, user_id)
+        # user_id add to event.users_id_go
+
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
@@ -101,36 +99,54 @@ def decline_event():
     event_id = request.values['event_id']
     user_id = request.values['user_id']
     try:
-        DB.get_event(event_id)
+        DB.event_update_del_users_id_want(event_id, user_id)
+        # check, maybe he will take ban
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
+
+# --------------------------------------------------------------------------
+# -------------------------EVENT_want/not_want------------------------------
+
+
+@app.route('/api/event_want', methods=["POST"])
+def event_want():
+    # I need to check free places (users_id_go)? (if not free places - user can't 'event_want')
+    # Or I need to check that user already 'event_want' or 'event_go'?
+    event_id = request.values['event_id']
+    user_id = request.values['user_id']
+    try:
+        DB.event_update_add_users_id_want(event_id, user_id)
+    except psycopg2.Error as E:
+        return 'Error with db {}'.format(E), 400
+
+
+@app.route('/api/event_not_want', methods=["POST"])      # !!!!!!!
+def event_not_want():
+    pass
 # ----------------------------------USER------------------------------------
 
 
-@app.route('/api/add_user', methods=["POST"])
-def add_user():
+@app.route('/api/user_add', methods=["POST"])
+def user_add():
     user_to_add = request.values
-    # control mail and phone
 
     if not check_phone(user_to_add['phone']):
         return 'Wrong phone', 400
     if not check_mail(user_to_add['mail']):
         return 'Wrong mail', 400
     try:
-        DB.add_user(user_to_add)
+        DB.user_add(user_to_add)
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
     except Exception as E:
         return str(E), 400
 
 
-@app.route('/api/get_user_profile', methods=["POST"])
-def get_user_profile():
+@app.route('/api/user_get_profile', methods=["POST"])
+def user_get_profile():
     user_id = request.values
-    # control mail and phone
     try:
-        user = DB.get_user(user_id)
-        # print(user)
+        user = DB.user_get(user_id)
         return user
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
@@ -138,24 +154,25 @@ def get_user_profile():
         return str(E), 400
 
 
-@app.route('/api/get_user_history', methods=["POST"])       # !!!!!!
-def get_user_history():
+@app.route('/api/user_get_history', methods=["POST"])       # feature
+def user_get_history():
     user_id = request.values
 
     try:
-        DB.add_user(user_id)
+        pass
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
     except Exception as E:
         return str(E), 400
 
 
-@app.route('/api/update_user', methods=["POST"])       # !!!!!!
-def update_user():
+@app.route('/api/user_update', methods=["POST"])
+def user_update():
+    user_id = request.values['user_id']
     user_data_to_update = request.values
 
     try:
-        DB.update_user(user_data_to_update)
+        DB.user_update(user_id, user_data_to_update)
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
     except Exception as E:

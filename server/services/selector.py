@@ -1,32 +1,71 @@
+
 import data.db_worker as db
-# select who goes on event
+import config
 
-
-"""
-добавление user_id в поле users_id_want из таблицы Events
-в определенный момент времени (например за 3 дня до поездки)
-формруется список users_id_go из таблицы Events
-рассылаются уведомления по user_id
-если user подтверждает - то ему начисляется score += coefficient
-если user откланяет - то ему начисляется score += coefficient и ban_date
-и происходит оповещение user из списка user_id_want
-
-"""
 DB = db.DB_PostgreSQL()
 
 
-def get_user_score(users_ids):
-    user_score = {}
-    for user_id in users_ids:
-        user_score[user_id] = DB.get_user(int(user_id))['score']
-    return user_score
+def gen_users():
+    users_ids = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
+    users_score = [10, 11, 12, 43, 153, 81, 93, 55, 12, 10, 8, 1022, 49]
+    users_count = len(users_ids)
 
+    for i in range(users_count):
+        test_user = {'user_id': users_ids[i],
+                     'user_name': 'Nik',
+                     'user_surname': 'Sul',
+                     'user_patronymic': 'Serg',
+                     'phone': '8991',
+                     'vk_link': 'http://',
+                     'mail': 'nikkitkit@mail.ru',
+                     'is_russian_citizenship': True,
+                     'score': users_score[i]}
+        DB.user_add(test_user)
+
+
+def get_user_score(users_ids):
+    users_score = {}
+    for user_id in users_ids:
+        users_score[user_id] = DB.user_get(int(user_id))['score']
+    return users_score
+
+
+def choose_user_on_event(event_id):
+    event = DB.event_get(event_id)
+    # users_id_want = event["users_id_want"]
+
+    users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
+
+    sorted_applicants = dict(sorted(users_id_want.items(), key=lambda x: x[1]))
+    print(sorted_applicants)
+    # user_want_to_go_score = get_user_score(users_id_want)
+    # user_want_to_go_score[:10]
+    # print(user_want_to_go_score)
+    # applicants.cut()
+    return users_id_go
+
+
+def update_users_id_go():
+    pass
+
+
+# gen_users()
 
 # mass from Events
-users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
+if __name__ == "__main__":
+    event_id_to_go = 1                        # откуда-то берем
+    notify_id = 1
+    if DB.event_get(event_id_to_go)['time_start'] <= config.TIME_TO_FIRST_APPLICANTS:
+        users_id_go = choose_user_on_event(event_id_to_go)
+        for user in users_id_go:
+            DB.user_update_add_notify(user, notify_id)
+            # every user get notify to accept or decline
 
-user_want_to_go_score = get_user_score(users_id_want)
-print(user_want_to_go_score)
+    users_id_go = choose_user_on_event(event_id_to_go)
+
+    # user_want_to_go_score = get_user_score(users_id_want)
+    # user_want_to_go_score[:10]
+    # print(user_want_to_go_score)
 
 # dict = {}
 # lol = 12

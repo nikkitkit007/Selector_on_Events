@@ -14,6 +14,18 @@ TBL_USERS = "Users"
 TBL_NOTIFIES = "Notifies"
 TBL_NEWS = "News"
 
+# ------------------------
+TIME_TO_POST_EVENT = 10
+TIME_TO_FIRST_APPLICANTS = TIME_TO_POST_EVENT - 3
+TIME_TO_ACCEPT = 1                  # 1 day
+
+BAN_TIME_LATE = 1                   # 1 year
+BAN_TIME_IGNORE = 2                 # 2 year
+
+# ----------REGEX--------------
+REGEX_MAIL = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
+REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2})(?:\s*доб[.а-я]*\s*(\d{2,5}))?"
+
 # ----------users--------------
 # user_id integer primary key not null
 # user_name varchar(255)
@@ -58,9 +70,9 @@ TBL_NEWS = "News"
 
 # -----------------------------------
 # ----------server_func--------------
-# add_event
-# update_event
-# get_event
+# event_add
+# event_update
+# event_get
 #
 # apply_event
 # decline_event
