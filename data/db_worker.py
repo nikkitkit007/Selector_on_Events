@@ -8,7 +8,6 @@
 import config
 import psycopg2
 import psycopg2.extras
-from datetime import datetime
 
 
 def open_close_connection(func):
@@ -22,16 +21,15 @@ def open_close_connection(func):
     return the_wrapper_around_the_original_function
 
 
-class DB_PostgreSQL(object):
+class DataBaseEvents(object):
     def __init__(self):
         try:
             self.connection = ''
             self.cur = ''
-            # self.open_connection()
 
             self.schema_name = config.SCHEMA_NAME
+
             self.tbl_events = config.TBL_EVENTS
-            self.tbl_images = config.TBL_IMAGES
             self.tbl_users = config.TBL_USERS
             self.tbl_notifies = config.TBL_NOTIFIES
             self.tbl_news = config.TBL_NEWS
@@ -65,8 +63,14 @@ class DB_PostgreSQL(object):
             print(E)
 
     def create_tables(self):
+        self.create_table_events()
+        self.create_table_notifies()
+        self.create_table_users()
+        self.create_table_news()
+
+    # ---------------------------------------TABLES----------------------------------
+    def create_table_events(self):
         try:
-            # -------------------------Events-----------------------------
             self.cur.execute(
                 """CREATE TABLE IF NOT EXISTS %s.%s(
                 event_id serial primary key not null,
@@ -78,25 +82,20 @@ class DB_PostgreSQL(object):
                 people_count integer,
                 coefficient integer,
                 users_id_want integer[],
-                users_id_go integer[]
+                users_id_go integer[],
+                image varchar(127)
                 );""" % (self.schema_name, self.tbl_events))
             self.connection.commit()
             print("Table Events created!")
+        except Exception as E:
+            print("Some errors with tables creation with error: {}".format(E))
 
-            # -------------------------Images-----------------------------
-            self.cur.execute(
-                """CREATE TABLE IF NOT EXISTS %s.%s(
-                image_id serial primary key not null,
-                event_id integer references %s.%s(event_id),
-                image varchar(127)
-                );""" % (self.schema_name, self.tbl_images, self.schema_name, self.tbl_events))
-            self.connection.commit()
-            print("Table Images created!")
-
-            # -------------------------Users-------------------------------
+    def create_table_users(self):
+        try:
             self.cur.execute(
                 """CREATE TABLE IF NOT EXISTS %s.%s(
                 user_id integer primary key not null,
+                user_isu_number integer,
                 user_name varchar(255),
                 user_surname varchar(255),
                 user_patronymic varchar(255),
@@ -106,23 +105,31 @@ class DB_PostgreSQL(object):
                 is_russian_citizenship bool,
                 score integer DEFAULT 0,
                 ban_date TIMESTAMP,
-                notify_id integer[]
+                notify_id integer[],
+                time_select_start TIMESTAMP
                 );""" % (self.schema_name, self.tbl_users))
             self.connection.commit()
             print("Table Users created!")
+        except Exception as E:
+            print("Some errors with tables creation with error: {}".format(E))
 
-            # -----------------------Notifies------------------------------
+    def create_table_notifies(self):
+        try:
             self.cur.execute(
                 """CREATE TABLE IF NOT EXISTS %s.%s(
                 notify_id serial primary key not null,
+                event_id integer,
                 time TIMESTAMP,
                 notify_header varchar(255),
                 notify_data text
                 );""" % (self.schema_name, self.tbl_notifies))
             self.connection.commit()
             print("Table Notifies created!")
+        except Exception as E:
+            print("Some errors with tables creation with error: {}".format(E))
 
-            # -------------------------News--------------------------------
+    def create_table_news(self):
+        try:
             self.cur.execute(
                 """CREATE TABLE IF NOT EXISTS %s.%s(
                 news_id serial primary key not null,
@@ -132,7 +139,6 @@ class DB_PostgreSQL(object):
                 );""" % (self.schema_name, self.tbl_news))
             self.connection.commit()
             print("Table News created!")
-
         except Exception as E:
             print("Some errors with tables creation with error: {}".format(E))
 
@@ -141,6 +147,7 @@ class DB_PostgreSQL(object):
     def user_add(self, user_to_add):
         try:
             user_id = int(user_to_add['user_id'])
+            user_isu_number = int(user_to_add['user_isu_number'])
             user_name = user_to_add['user_name']
             user_surname = user_to_add['user_surname']
             user_patronymic = user_to_add['user_patronymic']
@@ -151,10 +158,10 @@ class DB_PostgreSQL(object):
             # score = 0  # after all tests make = 0   user_to_add['score']
 
             self.cur.execute(
-                """INSERT INTO %s.%s(user_id, user_name, user_surname, user_patronymic, phone, vk_link, mail, 
-                is_russian_citizenship, score) 
-                VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s');""" % (
-                    self.schema_name, self.tbl_users, user_id, user_name, user_surname,
+                """INSERT INTO %s.%s(user_id, user_isu_number, user_name, user_surname, user_patronymic, 
+                phone, vk_link, mail, is_russian_citizenship) 
+                VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s');"""
+                % (self.schema_name, self.tbl_users, user_id, user_isu_number, user_name, user_surname,
                     user_patronymic, phone, vk_link, mail, is_russian_citizenship))
             self.connection.commit()
 
@@ -202,7 +209,7 @@ class DB_PostgreSQL(object):
             print(E)
 
     @open_close_connection
-    def user_update_add_notify(self, user_id, notify_id):
+    def user_update_add_notify(self, user_id, notify_id, time_now):
         try:
             cur_user_notify_id = DB.user_get(user_id)['notify_id']
             self.open_connection()
@@ -215,10 +222,11 @@ class DB_PostgreSQL(object):
 
             self.cur.execute(
                 """UPDATE %s.%s
-                SET notify_id = '%s'
+                SET notify_id = '%s',
+                time_select_start = '%s'
                 WHERE user_id = %d;
                 """
-                % (self.schema_name, self.tbl_users, new_user_notify_id, user_id))
+                % (self.schema_name, self.tbl_users, new_user_notify_id, time_now, user_id))
             self.connection.commit()  # добавить вместо att_name массив и в цикле делать апдейт
         except Exception as E:
             print(E)
@@ -257,14 +265,30 @@ class DB_PostgreSQL(object):
             print(E)
 
     @open_close_connection
-    def user_update_score(self, user_id, score):
+    def user_update_add_score(self, user_id, score):
         try:
+            user_score = self.user_get(user_id)['score']
+            user_score += score
+
             self.cur.execute(
                 """UPDATE %s.%s
                 SET score = %d
                 WHERE user_id = %d;
                 """
-                % (self.schema_name, self.tbl_users, score, user_id))
+                % (self.schema_name, self.tbl_users, user_score, user_id))
+            self.connection.commit()
+        except Exception as E:
+            print(E)
+
+    @open_close_connection
+    def user_update_del_timer(self, user_id):
+        try:
+            self.cur.execute(
+                """UPDATE %s.%s
+                SET time_select_finish = Null
+                WHERE user_id = %d;
+                """
+                % (self.schema_name, self.tbl_users, user_id))
             self.connection.commit()
         except Exception as E:
             print(E)
@@ -291,12 +315,13 @@ class DB_PostgreSQL(object):
             url_pdf = event_to_add['url_pdf']  # varchar
             people_count = event_to_add['people_count']
             coefficient = event_to_add['coefficient']
+            image = event_to_add['image']
 
             self.cur.execute(
-                """INSERT INTO %s.%s(event_name, time_start, time_end, description, url_pdf, people_count, coefficient) 
-                VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d);"""
+                """INSERT INTO %s.%s(event_name, time_start, time_end, description, url_pdf, people_count, coefficient, image) 
+                VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, '%s');"""
                 % (self.schema_name, self.tbl_events, event_name, time_start, time_end,
-                   description, url_pdf, people_count, coefficient))
+                   description, url_pdf, people_count, coefficient, image))
             self.connection.commit()
 
             print("Event \"%s\" " % event_name + "added")
@@ -313,6 +338,15 @@ class DB_PostgreSQL(object):
         return data
 
     @open_close_connection
+    def event_get_all(self):
+        self.cur.execute(
+            """SELECT * FROM %s.%s"""
+            % (self.schema_name, self.tbl_events))
+        self.connection.commit()
+        data = self.cur.fetchall()
+        return data
+
+    @open_close_connection
     def event_update(self, event_id, event_data_to_update):
         try:
             event_name = event_data_to_update["event_name"]
@@ -322,18 +356,19 @@ class DB_PostgreSQL(object):
             url_pdf = event_data_to_update["url_pdf"]
             people_count = event_data_to_update["people_count"]
             coefficient = event_data_to_update["coefficient"]
-            users_id_want = event_data_to_update["users_id_want"]
-            users_id_go = event_data_to_update["users_id_go"]
+            # users_id_want = event_data_to_update["users_id_want"]
+            # users_id_go = event_data_to_update["users_id_go"]
+            image = event_data_to_update['image']
 
-            if users_id_want:
-                users_id_want = str(set(users_id_want))
-            else:
-                users_id_want = '{}'
-
-            if users_id_go:
-                users_id_go = str(set(users_id_go))
-            else:
-                users_id_go = '{}'
+            # if users_id_want:
+            #     users_id_want = str(set(users_id_want))
+            # else:
+            #     users_id_want = '{}'
+            #
+            # if users_id_go:
+            #     users_id_go = str(set(users_id_go))
+            # else:
+            #     users_id_go = '{}'
 
             self.cur.execute(
                 """UPDATE %s.%s
@@ -345,11 +380,10 @@ class DB_PostgreSQL(object):
                 url_pdf = '%s',
                 people_count = %d,
                 coefficient = %d,
-                users_id_want = '%s',
-                users_id_go = '%s'         
+                image = '%s'         
                 where event_id = %d;
                 """ % (self.schema_name, self.tbl_events, event_name, time_start, time_end, description,
-                       url_pdf, people_count, coefficient, users_id_want, users_id_go, event_id))
+                       url_pdf, people_count, coefficient, event_id, image))
             self.connection.commit()
         except Exception as E:
             print(E)
@@ -417,6 +451,25 @@ class DB_PostgreSQL(object):
             print(E)
 
     @open_close_connection
+    def event_update_del_users_id_go(self, event_id, user_id):
+        try:
+            cur_users_id_go_list = DB.event_get(event_id)["users_id_go"]
+            DB.open_connection()
+
+            cur_users_id_go_list.remove(user_id)
+            new_users_id_go_list = cur_users_id_go_list
+            new_users_id_go_list = str(set(new_users_id_go_list))
+
+            self.cur.execute(
+                """UPDATE %s.%s
+                SET users_id_go = '%s'
+                where event_id = %d;
+                """ % (self.schema_name, self.tbl_events, new_users_id_go_list, event_id))
+            self.connection.commit()
+        except Exception as E:
+            print(E)
+
+    @open_close_connection
     def event_delete(self, event_id):
         try:
             self.cur.execute(
@@ -427,78 +480,19 @@ class DB_PostgreSQL(object):
         except Exception as E:
             print(E)
 
-    # -------------------------------IMAGE--------------------------------
-    @open_close_connection
-    def image_add(self, image_to_add):
-        try:
-            event_id = 0
-            image = image_to_add['image']  # varchar
-
-            self.cur.execute(
-                """INSERT INTO %s.%s(event_id, image) 
-                VALUES (%d, '%s');"""
-                % (self.schema_name, self.tbl_images, event_id, image))
-            self.connection.commit()
-
-            print("Image for event with ID = \"%s\" " % event_id + "added")
-        except Exception as E:
-            print(E)
-
-    @open_close_connection
-    def image_get_by_id(self, image_id, event_id=False):
-        if event_id:
-            insert_query = """SELECT * FROM %s.%s WHERE event_id=%d;"""
-        else:
-            insert_query = """SELECT * FROM %s.%s WHERE image_id=%d;"""
-
-        item_tuple = (self.schema_name, self.tbl_images, image_id)
-        self.cur.execute(insert_query, item_tuple)
-        self.connection.commit()
-        data = self.cur.fetchall()
-        all_data = []
-        for row in data:
-            all_data.append(dict(row))
-        return all_data
-
-    @open_close_connection
-    def image_update(self, image_data_to_update, event_id):
-        try:
-            self.cur.execute(
-                """UPDATE %s.%s
-                SET image = %s
-                WHERE event_id = %d;
-                """ % (self.schema_name, self.tbl_images, image_data_to_update, event_id))
-            self.connection.commit()  # добавить вместо att_name массив и в цикле делать апдейт
-        except Exception as E:
-            print(E)
-
-    @open_close_connection
-    def image_delete(self, id_to_delete, event_id=False):
-        if event_id:
-            insert_query = """DELETE FROM %s.%s WHERE event_id = %d;"""
-        else:
-            insert_query = """DELETE FROM %s.%s WHERE image_id = %d;"""
-
-        item_tuple = (self.schema_name, self.tbl_images, id_to_delete)
-
-        try:
-            self.cur.execute(insert_query, item_tuple)
-            self.connection.commit()
-        except Exception as E:
-            print(E)
-
     # -------------------------------NOTIFIES--------------------------------
     @open_close_connection
     def notify_add(self, notify_to_add):
         try:
+            event_id = notify_to_add['event_id']
             time = notify_to_add['time']  # TIMESTAMP
             notify_header = notify_to_add['notify_header']  # varchar
             notify_data = notify_to_add['notify_data']  # text
 
             self.cur.execute(
                 """INSERT INTO %s.%s(time, notify_header, notify_data) 
-                VALUES ('%s', '%s', '%s');"""
-                % (self.schema_name, self.tbl_notifies, time, notify_header, notify_data))
+                VALUES (%d,'%s', '%s', '%s');"""
+                % (self.schema_name, self.tbl_notifies, event_id, time, notify_header, notify_data))
             self.connection.commit()
 
             print("Notify with header \"%s\" " % notify_header + "added")
@@ -512,6 +506,15 @@ class DB_PostgreSQL(object):
                 self.schema_name, self.tbl_notifies, notify_id))
         self.connection.commit()
         data = self.cur.fetchone()
+        return data
+
+    @open_close_connection
+    def notify_get_for_event(self, event_id):
+        self.cur.execute(
+            """SELECT * FROM %s.%s WHERE event_id=%d;""" % (
+                self.schema_name, self.tbl_notifies, event_id))
+        self.connection.commit()
+        data = self.cur.fetchall()
         return data
 
     @open_close_connection
@@ -566,7 +569,7 @@ class DB_PostgreSQL(object):
             print(E)
 
     @open_close_connection
-    def get_news(self, news_id):
+    def news_get(self, news_id):
         self.cur.execute(
             """SELECT * FROM %s.%s WHERE news_id=%d;""" % (
                 self.schema_name, self.tbl_news, news_id))
@@ -601,11 +604,12 @@ class DB_PostgreSQL(object):
 # done
 def user_test():
     # ---------------USER-test------------------
-    test_user = {'user_id': 1,
-                 'user_name': 'Nik',
+    test_user = {'user_id': 2,
+                 'user_isu_number': 284678,
+                 'user_name': 'LOL',
                  'user_surname': 'Sul',
                  'user_patronymic': 'Serg',
-                 'phone': '8991',
+                 'phone': '8918',
                  'vk_link': 'http://',
                  'mail': 'nikkitkit@mail.ru',
                  'is_russian_citizenship': True}
@@ -628,20 +632,20 @@ def user_test():
                       'mail': 'nikkitkit@mail.ru',
                       'is_russian_citizenship': True, }
 
-    # DB.add_user(test_user)
+    # DB.user_add(test_user)
 
-    user_id_test = 1
+    user_id_test = 2
 
     # user1 = DB.user_get(user_id_test)
     # print(dict(user1))
     # # print(user1['user_id'])
-    #
+
     # DB.user_update(user_id_test, upd_test_user1)
     # user1 = DB.user_get(user_id_test)
     # print(dict(user1))
 
     # # add notify -----------------------------------
-    # DB.user_update_add_notify(user_id_test, 1)
+    # DB.user_update_add_notify(user_id_test, 1, datetime.now())
     # user1 = DB.user_get(user_id_test)
     # print(dict(user1))
 
@@ -651,7 +655,7 @@ def user_test():
     # print(dict(user1))
 
     # # add ban_date -----------------------------------
-    # ban = datetime.now()
+    # ban = datetime.now() + timedelta(10)
     # print(ban)
     # DB.user_update_ban_date(user_id_test, ban)
     # user1 = DB.user_get(user_id_test)
@@ -659,7 +663,7 @@ def user_test():
 
     # # add score -----------------------------------
     # scr = 100
-    # DB.user_update_score(user_id_test, scr)
+    # DB.user_update_add_score(user_id_test, scr)
     # user1 = DB.user_get(user_id_test)
     # print(dict(user1))
 
@@ -672,12 +676,13 @@ def user_test():
 def event_test():
     # ---------------EVENT-test------------------
     test_event = {'event_name': 'TEST',
-                  'time_start': '01-01-2022 00:00:00',
-                  'time_end': '01-01-2022 00:00:10',
+                  'time_start': '09-08-2022 00:00:00',
+                  'time_end': '09-10-2022 00:00:10',
                   'description': 'Simple test',
                   'url_pdf': 'http://lol',
                   'people_count': 10,
-                  'coefficient': 50}
+                  'coefficient': 50,
+                  'image': '/images/lol/lal.jpeg'}
     upd_test_event1 = {'event_name': 'TEST_upd',
                        'time_start': '01-01-2022 00:00:00',
                        'time_end': '01-01-2022 00:00:10',
@@ -685,8 +690,7 @@ def event_test():
                        'url_pdf': 'http://lol',
                        'people_count': 10,
                        'coefficient': 50,
-                       'users_id_want': [10, 12, 45],
-                       'users_id_go': []}
+                       'image': '/images/lol/lal.jpeg'}
     upd_test_event2 = {'event_name': 'TEST_lol',
                        'time_start': '01-01-2022 00:00:00',
                        'time_end': '01-01-2022 00:00:10',
@@ -694,18 +698,17 @@ def event_test():
                        'url_pdf': 'http://lol',
                        'people_count': 10,
                        'coefficient': 50,
-                       'users_id_want': [11, 12, 10, 100, 1000],
-                       'users_id_go': []}
+                       'image': '/images/lol/lal.jpeg'}
 
     event_id = 1
-    # DB.event_add(test_event)
-    event1 = DB.event_get(event_id)
-    print(dict(event1))
-
-    DB.event_update(event_id, upd_test_event2)
-
-    event1 = DB.event_get(event_id)
-    print(dict(event1))
+    DB.event_add(test_event)
+    # event1 = DB.event_get(event_id)
+    # print(dict(event1))
+    #
+    # DB.event_update(event_id, upd_test_event2)
+    #
+    # event1 = DB.event_get(event_id)
+    # print(dict(event1))
 
     # DB.event_update_add_users_id_want(event_id, 99)
     # event1 = DB.event_get(event_id)
@@ -714,16 +717,22 @@ def event_test():
     # DB.event_update_del_users_id_want(event_id, 101)
     # event1 = DB.event_get(event_id)
     # print(dict(event1))
+
+    # DB.event_update_add_users_id_go(event_id, 99)
+    # event1 = DB.event_get(event_id)
+    # print(dict(event1))
+
+    # DB.event_update_del_users_id_go(event_id, 101)
+    # event1 = DB.event_get(event_id)
+    # print(dict(event1))
+
     # DB.event_delete(1)
-
-
-def image_test():
-    pass
 
 
 # done
 def notify_test():
-    test_notify = {'time': '01-01-2022 00:00:00',
+    test_notify = {'event_id': 4,
+                   'time': '01-01-2022 00:00:00',
                    'notify_header': 'I am test notify',
                    'notify_data': 'Cool notify'}
 
@@ -731,35 +740,38 @@ def notify_test():
                        'notify_header': 'I updated test notify!!!!!',
                        'notify_data': 'WOW'}
     notify_id = 1
+
     DB.notify_add(test_notify)
     notify = DB.notify_get(notify_id)
     print(dict(notify))
 
-    DB.notify_update(1, upd_test_notify)
+    DB.notify_update(notify_id, upd_test_notify)
     notify = DB.notify_get(notify_id)
     print(dict(notify))
     # DB.notify_delete(1)
 
 
 def news_test():
-    test_news = {'header': 'I am test news', 'data': 'Lets go!', 'time': '01-01-2022 00:00:00'}
+    test_news = {'header': 'I am test news',
+                 'data': 'Lets go!',
+                 'time': '01-01-2022 00:00:00'}
 
     DB.news_add(test_news)
-    news1 = DB.get_news(1)
-    try:
-        print(dict(news1))
-    except:
-        print("Not found")
+    news1 = DB.news_get(1)
+    print(dict(news1))
+
     DB.news_delete(1)
 
 
 if __name__ == "__main__":
-    DB = DB_PostgreSQL()
+    DB = DataBaseEvents()
     # DB.create_db()
 
     # user_test()
+
+    # DB.event_update_add_users_id_want(4, 1)
+
     # event_test()
 
-    # image_test()
     # news_test()
     # notify_test()

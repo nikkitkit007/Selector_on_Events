@@ -1,15 +1,26 @@
 # https://tokmakov.msk.ru/blog/item/41 - about regular expressions
 
+"""
+req = requests.post('http://127.0.0.1:5000/api/user_add', json={'user_id': 1})
+req.content
+b'<!doctype html>\n<html lang=en>\n<title>400 Bad Request</title>\n<h1>Bad Request</h1>\n<p>The browser (or proxy) sent a request that this server could not understand.</p>\n'
+req.status_code
+400
+req.text
+'<!doctype html>\n<html lang=en>\n<title>400 Bad Request</title>\n<h1>Bad Request</h1>\n<p>The browser (or proxy) sent a request that this server could not understand.</p>\n'
+req.json()
+"""
+
 import sys
 import psycopg2
-import server.services.selector as selector
+import services.selector as selector
+import services.checker as checker
 import config
 import data.db_worker as db
 from flask import Flask, request
 import re
 
-
-DB = db.DB_PostgreSQL()
+DB = db.DataBaseEvents()
 
 
 def check_mail(mail_address):
@@ -36,6 +47,7 @@ sys.path.append('../')
 def index():
     return "User info..."
 
+
 # ----------------------------------EVENT-----------------------------------
 
 
@@ -50,17 +62,21 @@ def event_add():
 
 @app.route('/api/event_update', methods=["POST"])
 def event_update():
-    event_id = request.values['event_id']
+    all_data = request.values
+    event_id = all_data['event_id']
+    del all_data['event_id']
     data_to_update = request.values
     try:
         DB.event_update(event_id, data_to_update)
+        return True
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
 
 @app.route('/api/event_get', methods=["POST"])
 def event_get():
-    event_id = request.values
+    event_id = request.values['event_id']
+    user_id = request.values['user_id']
     try:
         DB.event_get(event_id)
     except psycopg2.Error as E:
@@ -75,54 +91,86 @@ def event_delete():
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
-# --------------------------------------------------------------------------
+
 # -------------------------EVENT_apply/decline------------------------------
 
 
-@app.route('/api/apply_event', methods=["POST"])        # !!!!!!!
+@app.route('/api/apply_event', methods=["POST"])
 def apply_event():
-    event_id = request.values['event_id']
-    user_id = request.values['user_id']
+    event_id = int(request.values['event_id'])
+    user_id = int(request.values['user_id'])
     try:
-        DB.event_update_add_users_id_go(event_id, user_id)
-        # DB.selector.
+        # check he has time to apply
+        if checker.is_user_can_apply_event(user_id):
+            selector.user_apply_event(user_id, event_id)
 
-        DB.event_update_del_users_id_want(event_id, user_id)
-        # user_id add to event.users_id_go
-
+        return True
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
 
-@app.route('/api/decline_event', methods=["POST"])      # !!!!!!!
+@app.route('/api/decline_event', methods=["POST"])  # !!!!!!!
 def decline_event():
-    event_id = request.values['event_id']
-    user_id = request.values['user_id']
+    event_id = int(request.values['event_id'])
+    user_id = int(request.values['user_id'])
     try:
-        DB.event_update_del_users_id_want(event_id, user_id)
+        if checker.is_user_on_event_go(user_id, event_id):
+            selector.user_decline_event(user_id, event_id)
         # check, maybe he will take ban
+        return True
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
-# --------------------------------------------------------------------------
+
 # -------------------------EVENT_want/not_want------------------------------
 
 
-@app.route('/api/event_want', methods=["POST"])
+@app.route('/api/event_registration', methods=["POST"])
 def event_want():
-    # I need to check free places (users_id_go)? (if not free places - user can't 'event_want')
-    # Or I need to check that user already 'event_want' or 'event_go'?
-    event_id = request.values['event_id']
-    user_id = request.values['user_id']
+    event_id = int(request.values['event_id'])
+    user_id = int(request.values['user_id'])
     try:
-        DB.event_update_add_users_id_want(event_id, user_id)
+        if not checker.is_user_on_event_want(user_id, event_id) \
+                and not checker.is_user_on_event_go(user_id, event_id)\
+                and not checker.is_user_banned(user_id):
+            # проверяю, что юзер еще не записался на мероприятие
+            # и нет бана
+            if checker.is_event_opened_for_want(event_id):  # проверяю, что событие доступно для записи
+                # bottom color green
+                DB.event_update_add_users_id_want(event_id, user_id)
+            else:
+                # bottom color gray
+                pass
+        else:
+            # bottom color red
+            pass
+        return True
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
 
-@app.route('/api/event_not_want', methods=["POST"])      # !!!!!!!
+@app.route('/api/event_cancel_registration', methods=["POST"])
 def event_not_want():
-    pass
+    event_id = int(request.values['event_id'])
+    user_id = int(request.values['user_id'])
+    try:
+        if checker.is_user_on_event_want(user_id, event_id) \
+                and not checker.is_user_on_event_go(user_id, event_id):
+            # проверяю, что юзер УЖЕ записался на мероприятие
+            if checker.is_event_opened_for_want(event_id):  # проверяю, что событие доступно для записи
+                # bottom color red
+                DB.event_update_del_users_id_want(event_id, user_id)
+            else:
+                # bottom color gray
+                pass
+        else:
+            # bottom color green
+            pass
+        return True
+    except psycopg2.Error as E:
+        return 'Error with db {}'.format(E), 400
+
+
 # ----------------------------------USER------------------------------------
 
 
@@ -154,7 +202,7 @@ def user_get_profile():
         return str(E), 400
 
 
-@app.route('/api/user_get_history', methods=["POST"])       # feature
+@app.route('/api/user_get_history', methods=["POST"])  # feature
 def user_get_history():
     user_id = request.values
 
@@ -179,6 +227,24 @@ def user_update():
         return str(E), 400
 
 
-if __name__ == '__main__':
-    app.run()         # to see mistakes
+# -------------------------NOTIFIES--------------------------------
 
+@app.route('/api/notifies_send', methods=["POST"])
+def notifies_send():
+    user_id = request.values['user_id']
+    notifies = []
+    try:
+        notifies_id = DB.user_get(user_id)['notify_id']         # user's notifies
+
+        for notify_id in notifies_id:
+            notifies.append(DB.notify_get(notify_id))           # list with notifies json
+
+        return notifies
+    except psycopg2.Error as E:
+        return 'Error with db {}'.format(E), 400
+    except Exception as E:
+        return str(E), 400
+
+
+if __name__ == '__main__':
+    app.run()  # to see mistakes

@@ -1,8 +1,9 @@
 
 import data.db_worker as db
 import config
+from datetime import datetime, timedelta
 
-DB = db.DB_PostgreSQL()
+DB = db.DataBaseEvents()
 
 
 def gen_users():
@@ -23,6 +24,11 @@ def gen_users():
         DB.user_add(test_user)
 
 
+def update_users_id_go():
+    pass
+
+
+# -------------------norm-----------------
 def get_user_score(users_ids):
     users_score = {}
     for user_id in users_ids:
@@ -30,23 +36,37 @@ def get_user_score(users_ids):
     return users_score
 
 
-def choose_user_on_event(event_id):
+def select_users_on_event(event_id: int):
     event = DB.event_get(event_id)
-    # users_id_want = event["users_id_want"]
-
-    users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
+    users_id_want = event["users_id_want"]
+    people_count = event["people_count"] - event["users_is_go"].count()
+    # users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
 
     sorted_applicants = dict(sorted(users_id_want.items(), key=lambda x: x[1]))
     print(sorted_applicants)
-    # user_want_to_go_score = get_user_score(users_id_want)
-    # user_want_to_go_score[:10]
-    # print(user_want_to_go_score)
-    # applicants.cut()
-    return users_id_go
+    selected_users = dict(list(sorted_applicants.items())[:people_count])
+
+    return selected_users
 
 
-def update_users_id_go():
-    pass
+def user_apply_event(user_id: int, event_id: int):
+    DB.event_update_add_users_id_go(event_id, user_id)
+    DB.event_update_del_users_id_want(event_id, user_id)
+
+    score = DB.event_get(event_id)['coefficient']
+    DB.user_update_add_score(user_id, score)
+    DB.user_update_del_timer(user_id)
+    return True
+
+
+def user_decline_event(user_id: int, event_id: int):
+    DB.event_update_del_users_id_go(event_id, user_id)
+    event = DB.event_get(event_id)
+    time_now = datetime.now()
+
+    if time_now > event['time_start'] - timedelta(config.TIME_TO_BAN):
+        DB.user_update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
+    return True
 
 
 # gen_users()
@@ -56,12 +76,12 @@ if __name__ == "__main__":
     event_id_to_go = 1                        # откуда-то берем
     notify_id = 1
     if DB.event_get(event_id_to_go)['time_start'] <= config.TIME_TO_FIRST_APPLICANTS:
-        users_id_go = choose_user_on_event(event_id_to_go)
+        users_id_go = select_users_on_event(event_id_to_go)
         for user in users_id_go:
             DB.user_update_add_notify(user, notify_id)
             # every user get notify to accept or decline
 
-    users_id_go = choose_user_on_event(event_id_to_go)
+    users_id_go = select_users_on_event(event_id_to_go)
 
     # user_want_to_go_score = get_user_score(users_id_want)
     # user_want_to_go_score[:10]
