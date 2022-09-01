@@ -30,8 +30,8 @@ REGEX_MAIL = r"([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
 REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2})(?:\s*доб[.а-я]*\s*(\d{2,5}))?"
 
 # ----------users--------------
-# user_id integer primary key not null
-# user_isu_number integer                      ------ new nees test
+# user_id serial primary key not null
+# user_isu_number integer UNIQUE
 # user_name varchar(255)
 # user_surname varchar(255)
 # user_patronymic varchar(255)
@@ -42,7 +42,7 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 # score integer
 # ban_date TIMESTAMP
 # notify_id integer[]
-# time_select_finish TIMESTAMP           ------ new need test
+# time_select_finish TIMESTAMP
 
 
 # ----------events---------------

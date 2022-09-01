@@ -94,8 +94,8 @@ class DataBaseEvents(object):
         try:
             self.cur.execute(
                 """CREATE TABLE IF NOT EXISTS %s.%s(
-                user_id integer primary key not null,
-                user_isu_number integer,
+                user_id serial primary key not null,
+                user_isu_number integer UNIQUE,
                 user_name varchar(255),
                 user_surname varchar(255),
                 user_patronymic varchar(255),
@@ -146,7 +146,7 @@ class DataBaseEvents(object):
     @open_close_connection
     def user_add(self, user_to_add):
         try:
-            user_id = int(user_to_add['user_id'])
+            # user_id = int(user_to_add['user_id'])
             user_isu_number = int(user_to_add['user_isu_number'])
             user_name = user_to_add['user_name']
             user_surname = user_to_add['user_surname']
@@ -158,16 +158,16 @@ class DataBaseEvents(object):
             # score = 0  # after all tests make = 0   user_to_add['score']
 
             self.cur.execute(
-                """INSERT INTO %s.%s(user_id, user_isu_number, user_name, user_surname, user_patronymic, 
+                """INSERT INTO %s.%s(user_isu_number, user_name, user_surname, user_patronymic, 
                 phone, vk_link, mail, is_russian_citizenship) 
-                VALUES (%d, %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s');"""
-                % (self.schema_name, self.tbl_users, user_id, user_isu_number, user_name, user_surname,
+                VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s');"""
+                % (self.schema_name, self.tbl_users, user_isu_number, user_name, user_surname,
                     user_patronymic, phone, vk_link, mail, is_russian_citizenship))
             self.connection.commit()
 
-            print("User with id \"%s\" " % user_id + "added in table %s" % self.tbl_users)
+            print("User with id \"%s\" " % user_isu_number + "added in table %s" % self.tbl_users)
         except Exception as E:
-            print(E)
+            return E
 
     @open_close_connection
     def user_get(self, user_id):
@@ -354,21 +354,9 @@ class DataBaseEvents(object):
             time_end = event_data_to_update["time_end"]
             description = event_data_to_update["description"]
             url_pdf = event_data_to_update["url_pdf"]
-            people_count = event_data_to_update["people_count"]
-            coefficient = event_data_to_update["coefficient"]
-            # users_id_want = event_data_to_update["users_id_want"]
-            # users_id_go = event_data_to_update["users_id_go"]
+            people_count = int(event_data_to_update["people_count"])
+            coefficient = int(event_data_to_update["coefficient"])
             image = event_data_to_update['image']
-
-            # if users_id_want:
-            #     users_id_want = str(set(users_id_want))
-            # else:
-            #     users_id_want = '{}'
-            #
-            # if users_id_go:
-            #     users_id_go = str(set(users_id_go))
-            # else:
-            #     users_id_go = '{}'
 
             self.cur.execute(
                 """UPDATE %s.%s
@@ -383,7 +371,7 @@ class DataBaseEvents(object):
                 image = '%s'         
                 where event_id = %d;
                 """ % (self.schema_name, self.tbl_events, event_name, time_start, time_end, description,
-                       url_pdf, people_count, coefficient, event_id, image))
+                       url_pdf, people_count, coefficient, image, event_id))
             self.connection.commit()
         except Exception as E:
             print(E)
@@ -391,7 +379,7 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_add_users_id_want(self, event_id, user_id_want):
         try:
-            cur_users_id_want_list = DB.event_get(event_id)["users_id_want"]
+            cur_users_id_want_list = self.event_get(event_id)["users_id_want"]
             self.open_connection()
 
             if cur_users_id_want_list:
@@ -400,7 +388,6 @@ class DataBaseEvents(object):
                 new_users_id_want_list = str(set(cur_users_id_want_list))
             else:
                 new_users_id_want_list = str({user_id_want})
-
             self.cur.execute(
                 """UPDATE %s.%s
                 SET users_id_want = '%s'
@@ -434,12 +421,14 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_del_users_id_want(self, event_id, user_id):
         try:
-            cur_users_id_want_list = DB.event_get(event_id)["users_id_want"]
-            DB.open_connection()
+            cur_users_id_want_list = self.event_get(event_id)["users_id_want"]
+            self.open_connection()
 
             cur_users_id_want_list.remove(user_id)
-            new_users_id_want_list = cur_users_id_want_list
-            new_users_id_want_list = str(set(new_users_id_want_list))
+            if cur_users_id_want_list:
+                new_users_id_want_list = str(set(cur_users_id_want_list))
+            else:
+                new_users_id_want_list = {}
 
             self.cur.execute(
                 """UPDATE %s.%s
@@ -474,7 +463,7 @@ class DataBaseEvents(object):
         try:
             self.cur.execute(
                 """DELETE FROM %s.%s
-                WHERE event_id = %s
+                WHERE event_id = %s;
                 """ % (self.schema_name, self.tbl_events, event_id))
             self.connection.commit()
         except Exception as E:
@@ -604,8 +593,7 @@ class DataBaseEvents(object):
 # done
 def user_test():
     # ---------------USER-test------------------
-    test_user = {'user_id': 2,
-                 'user_isu_number': 284678,
+    test_user = {'user_isu_number': 284678,
                  'user_name': 'LOL',
                  'user_surname': 'Sul',
                  'user_patronymic': 'Serg',
@@ -632,7 +620,7 @@ def user_test():
                       'mail': 'nikkitkit@mail.ru',
                       'is_russian_citizenship': True, }
 
-    # DB.user_add(test_user)
+    DB.user_add(test_user)
 
     user_id_test = 2
 
@@ -675,6 +663,7 @@ def user_test():
 # done
 def event_test():
     # ---------------EVENT-test------------------
+
     test_event = {'event_name': 'TEST',
                   'time_start': '09-08-2022 00:00:00',
                   'time_end': '09-10-2022 00:00:10',
@@ -701,14 +690,14 @@ def event_test():
                        'image': '/images/lol/lal.jpeg'}
 
     event_id = 1
-    DB.event_add(test_event)
+    # DB.event_add(test_event)
     # event1 = DB.event_get(event_id)
     # print(dict(event1))
     #
-    # DB.event_update(event_id, upd_test_event2)
+    DB.event_update(event_id, upd_test_event2)
     #
-    # event1 = DB.event_get(event_id)
-    # print(dict(event1))
+    event1 = DB.event_get(event_id)
+    print(dict(event1))
 
     # DB.event_update_add_users_id_want(event_id, 99)
     # event1 = DB.event_get(event_id)
