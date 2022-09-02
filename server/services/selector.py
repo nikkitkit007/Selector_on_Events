@@ -38,15 +38,24 @@ def get_user_score(users_ids):
 
 def select_users_on_event(event_id: int):
     event = DB.event_get(event_id)
-    users_id_want = event["users_id_want"]
-    people_count = event["people_count"] - event["users_is_go"].count()
-    # users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
+    users_want = event["users_id_want"]
+    users_go = event["users_id_go"]
 
-    sorted_applicants = dict(sorted(users_id_want.items(), key=lambda x: x[1]))
-    print(sorted_applicants)
-    selected_users = dict(list(sorted_applicants.items())[:people_count])
+    if users_want:
+        if users_go:
+            people_count_to_select = event["people_count"] - event["users_is_go"].count()
+            # users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
+        else:
+            people_count_to_select = event["people_count"]
 
-    return selected_users
+        users_want_with_score = get_user_score(users_want)
+
+        sorted_applicants = dict(sorted(users_want_with_score.items(), key=lambda x: x[1]))
+        print(sorted_applicants)
+        selected_users = dict(list(sorted_applicants.items())[:people_count_to_select])
+        print('selected_users:', list(selected_users))
+        return list(selected_users)
+    return False
 
 
 def user_apply_event(user_id: int, event_id: int):
@@ -55,7 +64,9 @@ def user_apply_event(user_id: int, event_id: int):
 
     score = DB.event_get(event_id)['coefficient']
     DB.user_update_add_score(user_id, score)
+
     DB.user_update_del_timer(user_id)
+
     return True
 
 

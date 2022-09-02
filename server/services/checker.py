@@ -80,9 +80,9 @@ def is_user_can_apply_event(user_id: int) -> bool:
     time_now = datetime.now()
     if user_time_select_finish:
         if user_time_select_finish > time_now:
-            return False
-        else:
             return True
+        else:
+            return False
     return False
 
 

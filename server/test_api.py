@@ -75,9 +75,11 @@ def test_user_delete():
 def test_event_add():
     method = "/api/event_add"
 
+    time_start = '09-07-2022 00:00:00'
+    time_end = '09-10-2022 00:00:10'
     test_event = {'event_name': 'TEST',
-                  'time_start': '09-10-2022 00:00:00',
-                  'time_end': '09-12-2022 00:00:10',
+                  'time_start': time_start,
+                  'time_end': time_end,
                   'description': 'Simple test',
                   'url_pdf': 'http://lol',
                   'people_count': 10,
@@ -139,28 +141,57 @@ def test_event_delete():
     return response.status_code == 200
 
 
-# --------------------------EVENT_REGISTRATION---------------------------
+# -----------------------------TEST_NOTIFY-------------------------------
+def test_notify_add():
+    method = "/api/notify_add"
+
+    event_id = 2
+    notify_data = 'You are win in event ' + str(event_id)
+
+    notify_to_add = {'event_id': event_id,
+                     'notify_header': 'Win eeeeeee!',
+                     'notify_data': notify_data}
+
+    response = requests.post(address + method, json=notify_to_add)
+    return response.status_code == 200
+
+
+# ------------------------TEST_EVENT_REGISTRATION------------------------
 def test_event_registration():
     method = "/api/event_registration"
-    event_id = 4
+    event_id = 1
     user_id = 1
 
     test_data_to_registration = {'event_id': event_id,
                                  'user_id': user_id}
 
     response = requests.post(address + method, json=test_data_to_registration)
+    print(response.content)
     return response.status_code == 200
 
 
 def test_event_cancel_registration():
     method = "/api/event_cancel_registration"
-    event_id = 4
+    event_id = 1
     user_id = 1
 
     test_data_to_cancel_registration = {'event_id': event_id,
                                         'user_id': user_id}
 
     response = requests.post(address + method, json=test_data_to_cancel_registration)
+    return response.status_code == 200
+
+
+# ----------------------------TEST_EVENT_APPLY---------------------------
+def test_apply_event():
+    method = "/api/apply_event"
+    event_id = 1
+    user_id = 1
+
+    test_data_to_apply_event = {'event_id': event_id,
+                                'user_id': user_id}
+
+    response = requests.post(address + method, json=test_data_to_apply_event)
     return response.status_code == 200
 
 
@@ -175,6 +206,10 @@ def test_event_cancel_registration():
 # print(test_event_update())
 # print(test_event_delete())
 
+# print(test_notify_add())
+
 # print(test_event_registration())
 # print(test_event_cancel_registration())
+
+print(test_apply_event())
 

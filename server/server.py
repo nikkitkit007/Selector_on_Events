@@ -84,9 +84,10 @@ def apply_event():
     try:
         # check he has time to apply
         if checker.is_user_can_apply_event(user_id):
+            print(1)
             selector.user_apply_event(user_id, event_id)
 
-        return True
+        return 'OK', 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
@@ -108,7 +109,7 @@ def decline_event():
 
 
 @app.route('/api/event_registration', methods=["POST"])
-def event_want():
+def event_registration():
     event_id = int(request.json['event_id'])
     user_id = int(request.json['user_id'])
     try:
@@ -117,23 +118,27 @@ def event_want():
                 and not checker.is_user_banned(user_id):
             # проверяю, что юзер еще не записался на мероприятие
             # и нет бана
+
             if checker.is_event_opened_for_want(event_id):  # проверяю, что событие доступно для записи
                 # bottom color green
                 DB.event_update_add_users_id_want(event_id, user_id)
+
                 return "OK", 200
             else:
                 # bottom color gray
-                pass
+
+                return "Event close for registration", 200
         else:
             # bottom color red
             pass
+
         return "User not registered", 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
 
 @app.route('/api/event_cancel_registration', methods=["POST"])
-def event_not_want():
+def event_cancel_registration():
     event_id = int(request.json['event_id'])
     user_id = int(request.json['user_id'])
     try:
@@ -229,6 +234,19 @@ def user_delete():
 
 
 # -------------------------NOTIFIES--------------------------------
+
+@app.route('/api/notify_add', methods=["POST"])
+def notify_add():
+    notify_to_add = request.json
+    try:
+        DB.notify_add(notify_to_add)
+        return "OK", 200
+    except psycopg2.Error as E:
+        return 'Error with db {}'.format(E), 400
+    except Exception as E:
+        return str(E), 400
+
+
 @app.route('/api/notifies_send', methods=["POST"])
 def notifies_send():
     user_id = request.json['user_id']
@@ -244,6 +262,7 @@ def notifies_send():
         return 'Error with db {}'.format(E), 400
     except Exception as E:
         return str(E), 400
+
 
 
 if __name__ == '__main__':

@@ -8,6 +8,7 @@
 import config
 import psycopg2
 import psycopg2.extras
+from datetime import datetime
 
 
 def open_close_connection(func):
@@ -106,7 +107,7 @@ class DataBaseEvents(object):
                 score integer DEFAULT 0,
                 ban_date TIMESTAMP,
                 notify_id integer[],
-                time_select_start TIMESTAMP
+                time_select_finish TIMESTAMP
                 );""" % (self.schema_name, self.tbl_users))
             self.connection.commit()
             print("Table Users created!")
@@ -209,9 +210,9 @@ class DataBaseEvents(object):
             print(E)
 
     @open_close_connection
-    def user_update_add_notify(self, user_id, notify_id, time_now):
+    def user_update_add_notify(self, user_id: int, notify_id: int, time_now):
         try:
-            cur_user_notify_id = DB.user_get(user_id)['notify_id']
+            cur_user_notify_id = self.user_get(user_id)['notify_id']
             self.open_connection()
 
             if cur_user_notify_id:
@@ -223,11 +224,11 @@ class DataBaseEvents(object):
             self.cur.execute(
                 """UPDATE %s.%s
                 SET notify_id = '%s',
-                time_select_start = '%s'
+                time_select_finish = '%s'
                 WHERE user_id = %d;
                 """
                 % (self.schema_name, self.tbl_users, new_user_notify_id, time_now, user_id))
-            self.connection.commit()  # добавить вместо att_name массив и в цикле делать апдейт
+            self.connection.commit()
         except Exception as E:
             print(E)
 
@@ -268,6 +269,8 @@ class DataBaseEvents(object):
     def user_update_add_score(self, user_id, score):
         try:
             user_score = self.user_get(user_id)['score']
+            self.open_connection()
+
             user_score += score
 
             self.cur.execute(
@@ -400,7 +403,7 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_add_users_id_go(self, event_id, user_id_go):
         try:
-            cur_users_id_go_list = DB.event_get(event_id)["users_id_go"]
+            cur_users_id_go_list = self.event_get(event_id)["users_id_go"]
             self.open_connection()
 
             if cur_users_id_go_list:
@@ -474,13 +477,14 @@ class DataBaseEvents(object):
     def notify_add(self, notify_to_add):
         try:
             event_id = notify_to_add['event_id']
-            time = notify_to_add['time']  # TIMESTAMP
+            # time = notify_to_add['time']  # TIMESTAMP
+            time = datetime.now()
             notify_header = notify_to_add['notify_header']  # varchar
             notify_data = notify_to_add['notify_data']  # text
 
             self.cur.execute(
-                """INSERT INTO %s.%s(time, notify_header, notify_data) 
-                VALUES (%d,'%s', '%s', '%s');"""
+                """INSERT INTO %s.%s(event_id, time, notify_header, notify_data) 
+                VALUES (%d, '%s', '%s', '%s');"""
                 % (self.schema_name, self.tbl_notifies, event_id, time, notify_header, notify_data))
             self.connection.commit()
 
