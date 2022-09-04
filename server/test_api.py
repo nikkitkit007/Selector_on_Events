@@ -1,5 +1,4 @@
 import requests
-import json
 
 address = 'http://127.0.0.1:5000'
 
@@ -77,7 +76,7 @@ def test_event_add():
 
     time_start = '09-07-2022 00:00:00'
     time_end = '09-10-2022 00:00:10'
-    test_event = {'event_name': 'TEST',
+    test_event = {'event_name': 'TEST_logging',
                   'time_start': time_start,
                   'time_end': time_end,
                   'description': 'Simple test',
@@ -211,5 +210,4 @@ def test_apply_event():
 # print(test_event_registration())
 # print(test_event_cancel_registration())
 
-print(test_apply_event())
-
+# print(test_apply_event())

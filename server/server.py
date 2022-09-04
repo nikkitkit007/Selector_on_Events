@@ -3,16 +3,21 @@ import sys
 import psycopg2
 import services.selector as selector
 import services.checker as checker
-import config
 import data.db_worker as db
 from flask import Flask, request
-import json
+
+import logging
+from logger_config import LOGGING_CONFIG
 
 DB = db.DataBaseEvents()
 
 
 app = Flask(__name__)
 sys.path.append('../')
+
+logging.config.dictConfig(LOGGING_CONFIG)
+info_logger = logging.getLogger('info_logger')
+error_logger = logging.getLogger('error_logger')
 
 
 @app.route('/')
@@ -28,7 +33,7 @@ def event_add():
     event_to_add = request.json
     try:
         DB.event_add(event_to_add)
-        return 'OK', 200
+        return "OK", 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
 
@@ -262,7 +267,6 @@ def notifies_send():
         return 'Error with db {}'.format(E), 400
     except Exception as E:
         return str(E), 400
-
 
 
 if __name__ == '__main__':

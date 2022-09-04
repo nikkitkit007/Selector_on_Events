@@ -24,24 +24,28 @@ def open_close_connection(func):
 
 class DataBaseEvents(object):
     def __init__(self):
-        try:
-            self.connection = ''
-            self.cur = ''
+        self.connection = ''
+        self.cur = ''
 
-            self.schema_name = config.SCHEMA_NAME
+        self.schema_name = config.SCHEMA_NAME
 
-            self.tbl_events = config.TBL_EVENTS
-            self.tbl_users = config.TBL_USERS
-            self.tbl_notifies = config.TBL_NOTIFIES
-            self.tbl_news = config.TBL_NEWS
+        self.tbl_events = config.TBL_EVENTS
+        self.tbl_users = config.TBL_USERS
+        self.tbl_notifies = config.TBL_NOTIFIES
+        self.tbl_news = config.TBL_NEWS
 
-        except Exception as E:
-            print(E)
+        self.database = config.DATABASE
+        self.user = config.USERNAME
+        self.password = config.PASSWORD
+        self.host = config.HOST
+        self.port = config.PORT
 
     def open_connection(self):
-        self.connection = psycopg2.connect(database=config.DATABASE, user=config.USERNAME, password=config.PASSWORD,
-                                           host=config.HOST,
-                                           port=config.PORT)  # create connection
+        self.connection = psycopg2.connect(database=self.database,
+                                           user=self.user,
+                                           password=self.password,
+                                           host=self.host,
+                                           port=self.port)  # create connection
         self.cur = self.connection.cursor(
             cursor_factory=psycopg2.extras.DictCursor)  # create cursor - object to manipulation with db
         # print("Successfully connection to database: \"%s\" for user \"%s\"" % (config.DATABASE, config.USERNAME))
@@ -147,7 +151,6 @@ class DataBaseEvents(object):
     @open_close_connection
     def user_add(self, user_to_add):
         try:
-            # user_id = int(user_to_add['user_id'])
             user_isu_number = int(user_to_add['user_isu_number'])
             user_name = user_to_add['user_name']
             user_surname = user_to_add['user_surname']
@@ -170,15 +173,17 @@ class DataBaseEvents(object):
         except Exception as E:
             return E
 
-    @open_close_connection
-    def user_get(self, user_id):
-        # type(self.cur.fetchone())
+    def _user_get(self, user_id):
         self.cur.execute(
             """SELECT * FROM %s.%s WHERE user_id=%d""" % (
                 self.schema_name, self.tbl_users, user_id))
         self.connection.commit()
         data = self.cur.fetchone()
         return data
+
+    @open_close_connection
+    def user_get(self, user_id):
+        return self._user_get(user_id)
 
     @open_close_connection
     def user_update(self, user_id, user_data_to_update):
@@ -212,8 +217,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def user_update_add_notify(self, user_id: int, notify_id: int, time_now):
         try:
-            cur_user_notify_id = self.user_get(user_id)['notify_id']
-            self.open_connection()
+            cur_user_notify_id = self._user_get(user_id)['notify_id']
+            # self.open_connection()
 
             if cur_user_notify_id:
                 cur_user_notify_id.append(notify_id)
@@ -235,8 +240,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def user_update_del_notify(self, user_id, notify_id):
         try:
-            cur_user_notify_id = DB.user_get(user_id)['notify_id']
-            self.open_connection()
+            cur_user_notify_id = DB._user_get(user_id)['notify_id']
+            # self.open_connection()
 
             cur_user_notify_id.remove(notify_id)
             new_user_notify_id = cur_user_notify_id
@@ -268,8 +273,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def user_update_add_score(self, user_id, score):
         try:
-            user_score = self.user_get(user_id)['score']
-            self.open_connection()
+            user_score = self._user_get(user_id)['score']
+            # self.open_connection()
 
             user_score += score
 
@@ -331,14 +336,17 @@ class DataBaseEvents(object):
         except Exception as E:
             print(E)
 
-    @open_close_connection
-    def event_get(self, event_id):
+    def _event_get(self, event_id):
         self.cur.execute(
             """SELECT * FROM %s.%s WHERE event_id=%d"""
             % (self.schema_name, self.tbl_events, event_id))
         self.connection.commit()
         data = self.cur.fetchone()
         return data
+
+    @open_close_connection
+    def event_get(self, event_id):
+        return self._event_get(event_id)
 
     @open_close_connection
     def event_get_all(self):
@@ -382,8 +390,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_add_users_id_want(self, event_id, user_id_want):
         try:
-            cur_users_id_want_list = self.event_get(event_id)["users_id_want"]
-            self.open_connection()
+            cur_users_id_want_list = self._event_get(event_id)["users_id_want"]
+            # self.open_connection()
 
             if cur_users_id_want_list:
                 cur_users_id_want_list.append(user_id_want)
@@ -403,8 +411,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_add_users_id_go(self, event_id, user_id_go):
         try:
-            cur_users_id_go_list = self.event_get(event_id)["users_id_go"]
-            self.open_connection()
+            cur_users_id_go_list = self._event_get(event_id)["users_id_go"]
+            # self.open_connection()
 
             if cur_users_id_go_list:
                 cur_users_id_go_list.append(user_id_go)
@@ -424,8 +432,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_del_users_id_want(self, event_id, user_id):
         try:
-            cur_users_id_want_list = self.event_get(event_id)["users_id_want"]
-            self.open_connection()
+            cur_users_id_want_list = self._event_get(event_id)["users_id_want"]
+            # self.open_connection()
 
             cur_users_id_want_list.remove(user_id)
             if cur_users_id_want_list:
@@ -445,8 +453,8 @@ class DataBaseEvents(object):
     @open_close_connection
     def event_update_del_users_id_go(self, event_id, user_id):
         try:
-            cur_users_id_go_list = DB.event_get(event_id)["users_id_go"]
-            DB.open_connection()
+            cur_users_id_go_list = DB._event_get(event_id)["users_id_go"]
+            # DB.open_connection()
 
             cur_users_id_go_list.remove(user_id)
             new_users_id_go_list = cur_users_id_go_list
