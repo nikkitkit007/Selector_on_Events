@@ -7,11 +7,11 @@ HOST = "127.0.0.1"
 PORT = "5435"
 
 # ------------------------
-SCHEMA_NAME = "ITMO_Events"
-TBL_EVENTS = "Events"
-TBL_USERS = "Users"
-TBL_NOTIFIES = "Notifies"
-TBL_NEWS = "News"
+SCHEMA_NAME = "ITMO_Event"
+TBL_EVENTS = "Event"
+TBL_USERS = "User"
+TBL_NOTIFIES = "Notify"
+TBL_NEWS = "New"
 
 # ------------------------
 TIME_TO_POST_EVENT = 10
@@ -56,7 +56,7 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 # coefficient integer
 # users_id_want integer[]
 # users_id_go integer[]
-# images varchar[]
+# image varchar
 
 # ----------notifies---------------
 # notify_id serial primary key not null
@@ -68,7 +68,7 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 # ----------news---------------
 # news_id serial primary key not null
 # header varchar
-# data text
+# data_base text
 # time TIMESTAMP
 
 # -----------------------------------

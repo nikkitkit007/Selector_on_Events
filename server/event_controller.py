@@ -1,4 +1,4 @@
-import data.db_worker as db
+# import data_base.db_worker as db
 import services.selector as selector
 import services.checker as checker
 import services.notify as notify
@@ -6,12 +6,18 @@ from datetime import datetime, timedelta
 import config
 from time import sleep
 
-DB = db.DataBaseEvents()
+import data_base.event_tbl as event_tbl
+import data_base.user_tbl as user_tbl
+import data_base.notify_tbl as notify_tbl
+import data_base.news_tbl as news_tbl
+
+# DB = db.DataBaseEvents()
+
 delay = config.TIME_TO_CHECK
 
 
 def is_any_free_places_event(event_id: int) -> bool:
-    event = DB.event_get(event_id)
+    event = event_tbl.event_get(event_id)
     users_id_go = event['users_id_go']
     if users_id_go:
         free_places = int(event['people_count']) - users_id_go.count()
@@ -28,7 +34,7 @@ def is_any_free_places_event(event_id: int) -> bool:
 
 if __name__ == "__main__":
     while True:
-        events = DB.event_get_all()
+        events = event_tbl.event_get_all()
         for event_i in events:
             if checker.is_event_active(int(event_i['event_id'])):
                 print("Active event is: ", int(event_i['event_id']))

@@ -1,9 +1,14 @@
 
-import data.db_worker as db
+# import data_base.db_worker as db
 import config
 from datetime import datetime, timedelta
 
-DB = db.DataBaseEvents()
+import data_base.event_tbl as event_tbl
+import data_base.user_tbl as user_tbl
+import data_base.notify_tbl as notify_tbl
+import data_base.news_tbl as news_tbl
+
+# DB = db.DataBaseEvents()
 
 
 def gen_users():
@@ -21,7 +26,7 @@ def gen_users():
                      'mail': 'nikkitkit@mail.ru',
                      'is_russian_citizenship': True,
                      'score': users_score[i]}
-        DB.user_add(test_user)
+        user_tbl.user_add(test_user)
 
 
 def update_users_id_go():
@@ -32,12 +37,12 @@ def update_users_id_go():
 def get_user_score(users_ids):
     users_score = {}
     for user_id in users_ids:
-        users_score[user_id] = DB.user_get(int(user_id))['score']
+        users_score[user_id] = user_tbl.user_get(int(user_id))['score']
     return users_score
 
 
 def select_users_on_event(event_id: int):
-    event = DB.event_get(event_id)
+    event = event_tbl.event_get(event_id)
     users_want = event["users_id_want"]
     users_go = event["users_id_go"]
 
@@ -59,24 +64,24 @@ def select_users_on_event(event_id: int):
 
 
 def user_apply_event(user_id: int, event_id: int):
-    DB.event_update_add_users_id_go(event_id, user_id)
-    DB.event_update_del_users_id_want(event_id, user_id)
+    event_tbl.event_update_add_users_id_go(event_id, user_id)
+    event_tbl.event_update_del_users_id_want(event_id, user_id)
 
-    score = DB.event_get(event_id)['coefficient']
-    DB.user_update_add_score(user_id, score)
+    score = event_tbl.event_get(event_id)['coefficient']
+    user_tbl.user_update_add_score(user_id, score)
 
-    DB.user_update_del_timer(user_id)
+    user_tbl.user_update_del_timer(user_id)
 
     return True
 
 
 def user_decline_event(user_id: int, event_id: int):
-    DB.event_update_del_users_id_go(event_id, user_id)
-    event = DB.event_get(event_id)
+    event_tbl.event_update_del_users_id_go(event_id, user_id)
+    event = event_tbl.event_get(event_id)
     time_now = datetime.now()
 
     if time_now > event['time_start'] - timedelta(config.TIME_TO_BAN):
-        DB.user_update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
+        user_tbl.user_update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
     return True
 
 
@@ -86,10 +91,10 @@ def user_decline_event(user_id: int, event_id: int):
 if __name__ == "__main__":
     event_id_to_go = 1                        # откуда-то берем
     notify_id = 1
-    if DB.event_get(event_id_to_go)['time_start'] <= config.TIME_TO_FIRST_APPLICANTS:
+    if event_tbl.event_get(event_id_to_go)['time_start'] <= config.TIME_TO_FIRST_APPLICANTS:
         users_id_go = select_users_on_event(event_id_to_go)
         for user in users_id_go:
-            DB.user_update_add_notify(user, notify_id)
+            user_tbl.user_update_add_notify(user, notify_id)
             # every user get notify to accept or decline
 
     users_id_go = select_users_on_event(event_id_to_go)

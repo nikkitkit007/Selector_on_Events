@@ -74,9 +74,11 @@ def test_user_delete():
 def test_event_add():
     method = "/api/event_add"
 
-    time_start = '09-07-2022 00:00:00'
-    time_end = '09-10-2022 00:00:10'
-    test_event = {'event_name': 'TEST_logging',
+    time_start = '09-14-2022 00:00:00'
+    time_end = '09-15-2022 00:00:10'
+    # time_end = 'fds'
+
+    test_event = {'event_name': 'TEST_last... joke',
                   'time_start': time_start,
                   'time_end': time_end,
                   'description': 'Simple test',
@@ -110,9 +112,9 @@ def test_event_get_all():
 def test_event_update():
     method = "/api/event_update"
 
-    event_name_update = 'TEST_update'
-
-    test_data_update = {'event_id': 1,
+    event_name_update = 'TEST_update_really>!'
+    event_id = 1
+    test_data_update = {'event_id': event_id,
                         'data_to_update':
                             {
                                 'event_name': event_name_update,
@@ -132,7 +134,7 @@ def test_event_update():
 
 def test_event_delete():
     method = "/api/event_delete"
-    event_id = 3
+    event_id = 5
 
     test_event_id = {'event_id': event_id}
 
@@ -202,7 +204,7 @@ def test_apply_event():
 # print(test_event_add())
 # print(test_event_get())
 # print(test_event_get_all())
-# print(test_event_update())
+print(test_event_update())
 # print(test_event_delete())
 
 # print(test_notify_add())

@@ -3,13 +3,19 @@ import sys
 import psycopg2
 import services.selector as selector
 import services.checker as checker
-import data.db_worker as db
-from flask import Flask, request
+# import data_base.db_worker as db
+from flask import Flask, request, jsonify
+import json
 
 import logging
 from logger_config import LOGGING_CONFIG
 
-DB = db.DataBaseEvents()
+import data_base.event_tbl as event_tbl
+import data_base.user_tbl as user_tbl
+import data_base.notify_tbl as notify_tbl
+import data_base.news_tbl as news_tbl
+
+# DB = db.DataBaseEvents()
 
 
 app = Flask(__name__)
@@ -30,53 +36,69 @@ def index():
 
 @app.route('/api/event_add', methods=["POST"])
 def event_add():
-    event_to_add = request.json
     try:
-        DB.event_add(event_to_add)
-        return "OK", 200
+        event_to_add = request.json
+        event_tbl.event_add(event_to_add)
+
+        info_logger.info(f'Event \"{event_to_add["event_name"]}\" added!')
+        return "", 200
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E, request.json)
+        return "", 400
 
 
 @app.route('/api/event_update', methods=["POST"])
 def event_update():
-    event_id = int(request.json['event_id'])
-    data_to_update = request.json['data_to_update']
-
     try:
-        DB.event_update(event_id, data_to_update)
-        return 'OK', 200
+        event_id = int(request.json['event_id'])
+        data_to_update = request.json['data_to_update']
+        event_tbl.event_update(event_id, data_to_update)
+
+        info_logger.info(f'Event with id:{event_id} updated!')
+        return '', 200
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 @app.route('/api/event_get', methods=["POST"])
 def event_get():
-    event_id = int(request.json['event_id'])
+    event_id = 0
     try:
-        event = DB.event_get(event_id)
-        return event
-    except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        event_id = int(request.json['event_id'])
+        event = event_tbl.event_get(event_id)
+        if event:
+            return event, 200
+        else:
+            raise ValueError(event)
+    except ValueError as E:
+        error_logger.error(f"Event with id: {event_id} does not exist!")
+        return '', 400
 
 
 @app.route('/api/event_get_all', methods=["POST"])
 def event_get_all():
     try:
-        events = DB.event_get_all()
-        return events
+        events = event_tbl.event_get(all_events=True)
+        if events:
+            return events, 200
+        else:
+            return "Not events", 400
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 @app.route('/api/event_delete', methods=["POST"])
 def event_delete():
-    event_id = int(request.json['event_id'])
     try:
-        DB.event_delete(event_id)
-        return 'OK', 200
+        event_id = int(request.json['event_id'])
+        event_tbl.event_delete(event_id)
+        info_logger.info(f'Event with id: {event_id} deleted.')
+        return '', 200
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 # -------------------------EVENT_apply/decline------------------------------
@@ -84,30 +106,34 @@ def event_delete():
 
 @app.route('/api/apply_event', methods=["POST"])
 def apply_event():
-    event_id = int(request.json['event_id'])
-    user_id = int(request.json['user_id'])
     try:
+        event_id = int(request.json['event_id'])
+        user_id = int(request.json['user_id'])
         # check he has time to apply
         if checker.is_user_can_apply_event(user_id):
-            print(1)
             selector.user_apply_event(user_id, event_id)
-
-        return 'OK', 200
+            info_logger.info(f'User with id: {user_id} applied event {event_id}.')
+        return '', 200
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 @app.route('/api/decline_event', methods=["POST"])  # !!!!!!!
 def decline_event():
-    event_id = int(request.json['event_id'])
-    user_id = int(request.json['user_id'])
     try:
+        event_id = int(request.json['event_id'])
+        user_id = int(request.json['user_id'])
+
         if checker.is_user_on_event_go(user_id, event_id):
             selector.user_decline_event(user_id, event_id)
         # check, maybe he will take ban
+        info_logger.info(f'User with id: {user_id} decline event {event_id}.')
+
         return True
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 # -------------------------EVENT_want/not_want------------------------------
@@ -126,7 +152,7 @@ def event_registration():
 
             if checker.is_event_opened_for_want(event_id):  # проверяю, что событие доступно для записи
                 # bottom color green
-                DB.event_update_add_users_id_want(event_id, user_id)
+                event_tbl.event_update_add_users_id_want(event_id, user_id)
 
                 return "OK", 200
             else:
@@ -139,7 +165,8 @@ def event_registration():
 
         return "User not registered", 200
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 @app.route('/api/event_cancel_registration', methods=["POST"])
@@ -152,7 +179,7 @@ def event_cancel_registration():
             # проверяю, что юзер УЖЕ записался на мероприятие
             if checker.is_event_opened_for_want(event_id):  # проверяю, что событие доступно для записи
                 # bottom color red
-                DB.event_update_del_users_id_want(event_id, user_id)
+                event_tbl.event_update_del_users_id_want(event_id, user_id)
                 return "OK", 200
             else:
                 # bottom color gray
@@ -162,7 +189,8 @@ def event_cancel_registration():
             pass
         return "Error with cancel registration!", 200
     except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        error_logger.error(E)
+        return '', 400
 
 
 # ----------------------------------USER------------------------------------
@@ -180,7 +208,7 @@ def user_add():
     if not checker.is_correct_mail(user_to_add['mail']):
         return 'Wrong mail', 400
     try:
-        DB.user_add(user_to_add)
+        user_tbl.user_add(user_to_add)
         return "OK", 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
@@ -192,7 +220,7 @@ def user_add():
 def user_get_profile():
     user_id = request.json['user_id']
     try:
-        user = DB.user_get(user_id)
+        user = user_tbl.user_get(user_id)
         return user
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
@@ -218,7 +246,7 @@ def user_update():
     user_data_to_update = request.json['user_data_to_update']
 
     try:
-        DB.user_update(user_id, user_data_to_update)
+        user_tbl.user_update(user_id, user_data_to_update)
         return 'OK', 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
@@ -230,7 +258,7 @@ def user_update():
 def user_delete():
     user_id = int(request.json['user_id'])
     try:
-        DB.user_delete(user_id)
+        user_tbl.user_delete(user_id)
         return 'OK', 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
@@ -244,7 +272,7 @@ def user_delete():
 def notify_add():
     notify_to_add = request.json
     try:
-        DB.notify_add(notify_to_add)
+        notify_tbl.notify_add(notify_to_add)
         return "OK", 200
     except psycopg2.Error as E:
         return 'Error with db {}'.format(E), 400
@@ -257,10 +285,10 @@ def notifies_send():
     user_id = request.json['user_id']
     notifies = []
     try:
-        notifies_id = DB.user_get(user_id)['notify_id']         # user's notifies
+        notifies_id = user_tbl.user_get(user_id)['notify_id']         # user's notifies
 
         for notify_id in notifies_id:
-            notifies.append(DB.notify_get(notify_id))           # list with notifies json
+            notifies.append(notify_tbl.notify_get(notify_id))           # list with notifies json
 
         return notifies
     except psycopg2.Error as E:
@@ -271,3 +299,9 @@ def notifies_send():
 
 if __name__ == '__main__':
     app.run()  # to see mistakes
+
+# CRUD
+# 1) Create POST
+# 2) Read - GET
+# 3) Update - Patch Put
+# 4) Delete - DELETE

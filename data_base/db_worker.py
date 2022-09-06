@@ -9,6 +9,12 @@ import config
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
+import logging
+from logger_config import LOGGING_CONFIG
+
+logging.config.dictConfig(LOGGING_CONFIG)
+info_logger = logging.getLogger('info_logger')
+error_logger = logging.getLogger('error_logger')
 
 
 def open_close_connection(func):
@@ -63,9 +69,9 @@ class DataBaseEvents(object):
             self.cur.execute("""CREATE SCHEMA IF NOT EXISTS %s;""" % self.schema_name)
             self.connection.commit()
 
-            print("Schema ITMO_Events created!")
+            info_logger.info("Schema ITMO_Events created!")
         except Exception as E:
-            print(E)
+            error_logger.error(E)
 
     def create_tables(self):
         self.create_table_events()
@@ -139,7 +145,7 @@ class DataBaseEvents(object):
                 """CREATE TABLE IF NOT EXISTS %s.%s(
                 news_id serial primary key not null,
                 header varchar(127),
-                data text,
+                data_base text,
                 time TIMESTAMP
                 );""" % (self.schema_name, self.tbl_news))
             self.connection.commit()
@@ -303,38 +309,32 @@ class DataBaseEvents(object):
 
     @open_close_connection
     def user_delete(self, user_id):
-        try:
-            self.cur.execute(
-                """DELETE FROM %s.%s
-                WHERE user_id = %s
-                """ % (self.schema_name, self.tbl_users, user_id))
-            self.connection.commit()
-        except Exception as E:
-            print(E)
+        self.cur.execute(
+            """DELETE FROM %s.%s
+            WHERE user_id = %s
+            """ % (self.schema_name, self.tbl_users, user_id))
+        self.connection.commit()
 
     # ------DONE----------------------------EVENT-----------------------------------
     @open_close_connection
     def event_add(self, event_to_add):
-        try:
-            event_name = event_to_add['event_name']  # varchar
-            time_start = event_to_add['time_start']  # TIMESTAMP
-            time_end = event_to_add['time_end']  # TIMESTAMP
-            description = event_to_add['description']  # text
-            url_pdf = event_to_add['url_pdf']  # varchar
-            people_count = event_to_add['people_count']
-            coefficient = event_to_add['coefficient']
-            image = event_to_add['image']
+        event_name = event_to_add['event_name']  # varchar
+        time_start = event_to_add['time_start']  # TIMESTAMP
+        time_end = event_to_add['time_end']  # TIMESTAMP
+        description = event_to_add['description']  # text
+        url_pdf = event_to_add['url_pdf']  # varchar
+        people_count = event_to_add['people_count']
+        coefficient = event_to_add['coefficient']
+        image = event_to_add['image']
 
-            self.cur.execute(
-                """INSERT INTO %s.%s(event_name, time_start, time_end, description, url_pdf, people_count, coefficient, image) 
-                VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, '%s');"""
-                % (self.schema_name, self.tbl_events, event_name, time_start, time_end,
-                   description, url_pdf, people_count, coefficient, image))
-            self.connection.commit()
+        self.cur.execute(
+            """INSERT INTO %s.%s(event_name, time_start, time_end, description, url_pdf, people_count, coefficient, image) 
+            VALUES ('%s', '%s', '%s', '%s', '%s', %d, %d, '%s');"""
+            % (self.schema_name, self.tbl_events, event_name, time_start, time_end,
+               description, url_pdf, people_count, coefficient, image))
+        self.connection.commit()
 
-            print("Event \"%s\" " % event_name + "added")
-        except Exception as E:
-            print(E)
+        print("Event \"%s\" " % event_name + "added")
 
     def _event_get(self, event_id):
         self.cur.execute(
@@ -342,7 +342,9 @@ class DataBaseEvents(object):
             % (self.schema_name, self.tbl_events, event_id))
         self.connection.commit()
         data = self.cur.fetchone()
-        return data
+        if data:
+            return data
+        return False
 
     @open_close_connection
     def event_get(self, event_id):
@@ -471,14 +473,11 @@ class DataBaseEvents(object):
 
     @open_close_connection
     def event_delete(self, event_id):
-        try:
-            self.cur.execute(
-                """DELETE FROM %s.%s
-                WHERE event_id = %s;
-                """ % (self.schema_name, self.tbl_events, event_id))
-            self.connection.commit()
-        except Exception as E:
-            print(E)
+        self.cur.execute(
+            """DELETE FROM %s.%s
+            WHERE event_id = %s;
+            """ % (self.schema_name, self.tbl_events, event_id))
+        self.connection.commit()
 
     # -------------------------------NOTIFIES--------------------------------
     @open_close_connection
@@ -539,28 +538,25 @@ class DataBaseEvents(object):
 
     @open_close_connection
     def notify_delete(self, notify_id):
-        try:
-            self.cur.execute(
-                """DELETE FROM %s.%s
-                WHERE notify_id = %d;
-                """ % (self.schema_name, self.tbl_notifies, notify_id))
-            self.connection.commit()
-        except Exception as E:
-            print(E)
+        self.cur.execute(
+            """DELETE FROM %s.%s
+            WHERE notify_id = %d;
+            """ % (self.schema_name, self.tbl_notifies, notify_id))
+        self.connection.commit()
 
     # -------------------------------NEWS--------------------------------
     @open_close_connection
     def news_add(self, news_to_add):
         # header varchar
-        # data text
+        # data_base text
         # time TIMESTAMP
         try:
             header = news_to_add['header']  # varchar
-            data = news_to_add['data']  # text
+            data = news_to_add['data_base']  # text
             time = news_to_add['time']  # TIMESTAMP
 
             self.cur.execute(
-                """INSERT INTO %s.%s(header, data, time) 
+                """INSERT INTO %s.%s(header, data_base, time) 
                 VALUES ('%s', '%s', '%s');"""
                 % (self.schema_name, self.tbl_news, header, data, time))
             self.connection.commit()
@@ -592,14 +588,11 @@ class DataBaseEvents(object):
 
     @open_close_connection
     def news_delete(self, news_id):
-        try:
-            self.cur.execute(
-                """DELETE FROM %s.%s
-                WHERE news_id = %d;
-                """ % (self.schema_name, self.tbl_news, news_id))
-            self.connection.commit()
-        except Exception as E:
-            print(E)
+        self.cur.execute(
+            """DELETE FROM %s.%s
+            WHERE news_id = %d;
+            """ % (self.schema_name, self.tbl_news, news_id))
+        self.connection.commit()
 
 
 # done
@@ -754,7 +747,7 @@ def notify_test():
 
 def news_test():
     test_news = {'header': 'I am test news',
-                 'data': 'Lets go!',
+                 'data_base': 'Lets go!',
                  'time': '01-01-2022 00:00:00'}
 
     DB.news_add(test_news)

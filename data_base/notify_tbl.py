@@ -1,0 +1,96 @@
+import config
+import sqlalchemy as sa
+from .base import Base, Session, engine
+
+import logging
+from logger_config import LOGGING_CONFIG
+
+logging.config.dictConfig(LOGGING_CONFIG)
+info_logger = logging.getLogger('info_logger')
+error_logger = logging.getLogger('error_logger')
+
+
+class Notify(Base):
+    __tablename__ = config.TBL_NOTIFIES
+    __table_args__ = {'extend_existing': True}
+
+    notify_id = sa.Column('notify_id', sa.Integer, primary_key=True)
+    event_id = sa.Column('event_id', sa.Integer, nullable=False)
+    time = sa.Column('time', sa.TIMESTAMP)
+    notify_header = sa.Column('notify_header', sa.String(127))
+    notify_data = sa.Column('notify_data', sa.String)
+
+    def __init__(self, notify_data):
+        self.notify_id = notify_data['notify_id']
+        self.event_id = notify_data['event_id']
+        self.time = notify_data['time']
+        self.notify_header = notify_data['notify_header']
+        self.notify_data = notify_data['notify_data']
+
+    def __repr__(self):
+        return f"<Notify (notify_header: {self.notify_header}," \
+               f"notify_id: {self.notify_id}, " \
+               f"event_id: {self.event_id})>"
+
+    def get_dict(self):
+        atts_dict = {"notify_id": self.notify_id,
+                     "event_id": self.event_id,
+                     "time": self.time,
+                     "notify_header": self.notify_header,
+                     "notify_data": self.notify_data}
+        return atts_dict
+
+
+def notify_add(notify_to_add: dict):
+    with Session(bind=engine) as local_session:
+        new_notify = Notify(notify_to_add)
+
+        local_session.add(new_notify)
+        local_session.commit()
+
+
+def notify_get(notify_id: int = 0):
+    with Session(bind=engine) as local_session:
+        notify = local_session.query(Notify).filter(Notify.notify_id == notify_id).first()
+
+        if notify:
+            return notify.get_dict()
+    return {}
+
+
+def notify_get_for_event(event_id: int = 0):
+    with Session(bind=engine) as local_session:
+        notifies = local_session.query(Notify).filter(Notify.event_id == event_id).all()
+        all_notifies = []
+
+        for notify in notifies:
+            all_notifies.append(notify.get_dict())
+
+    return all_notifies
+
+
+def notify_update(notify_id: int, notify_data_to_update: dict):
+    with Session(bind=engine) as local_session:
+        notify_to_update = local_session.query(Notify).filter(Notify.notify_id == notify_id).first()
+        if notify_to_update:
+            notify_to_update.time = notify_data_to_update["time"]
+            notify_to_update.notify_header = notify_data_to_update["notify_header"]
+            notify_to_update.notify_data = notify_data_to_update["notify_data"]
+
+            local_session.commit()
+        else:
+            info_logger.error(f'Notify {notify_id} does not exist!')
+
+
+def notify_delete(notify_id: int):
+    with Session(bind=engine) as local_session:
+        notify_to_delete = local_session.query(Notify).filter(Notify.notify_id == notify_id).first()
+        if notify_to_delete:
+            local_session.delete(notify_to_delete)
+            local_session.commit()
+        else:
+            info_logger.error(f'Notify {notify_id} does not exist!')
+
+
+if __name__ == "__main__":
+    pass
