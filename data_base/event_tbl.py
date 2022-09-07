@@ -37,7 +37,7 @@ class Event(Base):
         self.people_count = event_data['people_count']
         self.coefficient = event_data['coefficient']
         self.image = event_data['image']
-        self.users_id_want = []  # TODO
+        self.users_id_want = []
         self.users_id_go = []
 
     def __repr__(self):

@@ -1,6 +1,7 @@
 import config
 import sqlalchemy as sa
 from .base import Base, Session, engine
+
 from datetime import datetime, timedelta
 import logging
 from logger_config import LOGGING_CONFIG
@@ -78,17 +79,18 @@ def user_get(user_id: int):
             return {}
 
 
-def user_update(user_id: int, user_data_to_update: dict):
+def user_update(user_id: int, user_data_to_update):
     with Session(bind=engine) as local_session:
         user_to_update = local_session.query(User).filter(User.user_id == user_id).first()
+
         if user_to_update:
-            user_to_update.user_name = user_data_to_update["user_name"]
-            user_to_update.user_surname = user_data_to_update["user_surname"]
-            user_to_update.user_patronymic = user_data_to_update["user_patronymic"]
-            user_to_update.phone = user_data_to_update["phone"]
-            user_to_update.vk_link = int(user_data_to_update["vk_link"])
-            user_to_update.mail = int(user_data_to_update["mail"])
-            user_to_update.is_russian_citizenship = user_data_to_update['is_russian_citizenship']
+            user_to_update.user_name = str(user_data_to_update["user_name"])
+            user_to_update.user_surname = str(user_data_to_update["user_surname"])
+            user_to_update.user_patronymic = str(user_data_to_update["user_patronymic"])
+            user_to_update.phone = str(user_data_to_update["phone"])
+            user_to_update.vk_link = str(user_data_to_update["vk_link"])
+            user_to_update.mail = str(user_data_to_update["mail"])
+            user_to_update.is_russian_citizenship = bool(user_data_to_update['is_russian_citizenship'])
 
             local_session.commit()
         else:

@@ -1,9 +1,9 @@
 import config
 import sqlalchemy as sa
 from .base import Base, Session, engine
-
 import logging
 from logger_config import LOGGING_CONFIG
+from datetime import datetime
 
 logging.config.dictConfig(LOGGING_CONFIG)
 info_logger = logging.getLogger('info_logger')
@@ -16,12 +16,11 @@ class Notify(Base):
 
     notify_id = sa.Column('notify_id', sa.Integer, primary_key=True)
     event_id = sa.Column('event_id', sa.Integer, nullable=False)
-    time = sa.Column('time', sa.TIMESTAMP)
+    time = sa.Column('time', sa.TIMESTAMP, default=sa.func.now())
     notify_header = sa.Column('notify_header', sa.String(127))
     notify_data = sa.Column('notify_data', sa.String)
 
     def __init__(self, notify_data):
-        self.notify_id = notify_data['notify_id']
         self.event_id = notify_data['event_id']
         self.time = notify_data['time']
         self.notify_header = notify_data['notify_header']
@@ -43,6 +42,7 @@ class Notify(Base):
 
 def notify_add(notify_to_add: dict):
     with Session(bind=engine) as local_session:
+        notify_to_add['time'] = datetime.now()
         new_notify = Notify(notify_to_add)
 
         local_session.add(new_notify)

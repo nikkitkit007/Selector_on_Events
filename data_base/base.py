@@ -7,8 +7,6 @@ from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import sessionmaker, scoped_session, Query, Mapper
 
-#
-
 
 def _get_query_cls(mapper, session):
     if mapper:
@@ -28,9 +26,8 @@ def _get_query_cls(mapper, session):
 Session = sessionmaker(query_cls=_get_query_cls)
 engine = create_engine(f"postgresql+psycopg2://{config.USERNAME}:{config.PASSWORD}"
                        f"@{config.HOST}:{config.PORT}/{config.DATABASE}",
-                       echo=True)
+                       echo=False)
 metadata = MetaData(bind=engine, schema=config.SCHEMA_NAME)
-# metadata = MetaData(schema=config.SCHEMA_NAME)
 
 # current_session = scoped_session(Session)
 

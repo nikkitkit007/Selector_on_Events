@@ -1,4 +1,5 @@
 import requests
+from datetime import datetime, timedelta
 
 address = 'http://127.0.0.1:5000'
 
@@ -23,26 +24,26 @@ def test_user_add_correct():
     return response.status_code == 200
 
 
-def test_user_get_profile():
+def test_user_get_profile(user_id: int = 1):
     method = "/api/user_get_profile"
 
-    test_user_id = {'user_id': 1}
+    test_user_id = {'user_id': user_id}
 
     response = requests.post(address + method, json=test_user_id)
     print(response.content)
     return response.status_code == 200
 
 
-def test_user_update():
+def test_user_update(user_id: int = 1):
     method = "/api/user_update"
 
-    test_user_id = 1
+    test_user_id = user_id
 
     phone_num = '9117252325'
     mail_box = 'nikkitkit0707@mail.ru'
     vk_link = 'https://vk.com/n.sulimenko12'
 
-    update_name = 'Nikitos'
+    update_name = 'Nikitos111111'
     test_data_update = {'user_id': test_user_id,
                         'user_data_to_update': {
                             'user_isu_number': 284678,
@@ -59,10 +60,10 @@ def test_user_update():
     return response.status_code == 200
 
 
-def test_user_delete():
+def test_user_delete(user_id: int = 1):
     method = "/api/user_delete"
 
-    user_id = 4
+    user_id = user_id
 
     test_user_id = {'user_id': user_id}
 
@@ -91,10 +92,10 @@ def test_event_add():
     return response.status_code == 200
 
 
-def test_event_get():
+def test_event_get(event_id: int = 1):
     method = "/api/event_get"
 
-    test_event_id = {'event_id': 1}
+    test_event_id = {'event_id': event_id}
 
     response = requests.post(address + method, json=test_event_id)
     print(response.content)
@@ -109,11 +110,11 @@ def test_event_get_all():
     return response.status_code == 200
 
 
-def test_event_update():
+def test_event_update(event_id: int = 1):
     method = "/api/event_update"
 
     event_name_update = 'TEST_update_really>!'
-    event_id = 1
+
     test_data_update = {'event_id': event_id,
                         'data_to_update':
                             {
@@ -132,9 +133,8 @@ def test_event_update():
     return response.status_code == 200
 
 
-def test_event_delete():
+def test_event_delete(event_id: int = 1):
     method = "/api/event_delete"
-    event_id = 5
 
     test_event_id = {'event_id': event_id}
 
@@ -143,11 +143,11 @@ def test_event_delete():
 
 
 # -----------------------------TEST_NOTIFY-------------------------------
-def test_notify_add():
+def test_notify_add(event_id: int = 1):
     method = "/api/notify_add"
 
-    event_id = 2
     notify_data = 'You are win in event ' + str(event_id)
+    # time_notify = str(datetime.now())
 
     notify_to_add = {'event_id': event_id,
                      'notify_header': 'Win eeeeeee!',
@@ -158,10 +158,8 @@ def test_notify_add():
 
 
 # ------------------------TEST_EVENT_REGISTRATION------------------------
-def test_event_registration():
+def test_event_registration(event_id: int = 1, user_id: int = 1):
     method = "/api/event_registration"
-    event_id = 1
-    user_id = 1
 
     test_data_to_registration = {'event_id': event_id,
                                  'user_id': user_id}
@@ -171,10 +169,8 @@ def test_event_registration():
     return response.status_code == 200
 
 
-def test_event_cancel_registration():
+def test_event_cancel_registration(event_id: int = 1, user_id: int = 1):
     method = "/api/event_cancel_registration"
-    event_id = 1
-    user_id = 1
 
     test_data_to_cancel_registration = {'event_id': event_id,
                                         'user_id': user_id}
@@ -197,17 +193,18 @@ def test_apply_event():
 
 
 # print(test_user_add_correct())
-# print(test_user_get_profile())
-# print(test_user_update())
-# print(test_user_delete())
+# print(test_user_get_profile(user_id=3))
+# print(test_user_update(user_id=3))
+# print(test_user_get_profile(user_id=3))
+# print(test_user_delete(user_id=3))
 
 # print(test_event_add())
-# print(test_event_get())
+# print(test_event_get(event_id=1))
 # print(test_event_get_all())
-print(test_event_update())
-# print(test_event_delete())
+# print(test_event_update(event_id=1))
+# print(test_event_delete(event_id=1))
 
-# print(test_notify_add())
+# print(test_notify_add(1))
 
 # print(test_event_registration())
 # print(test_event_cancel_registration())

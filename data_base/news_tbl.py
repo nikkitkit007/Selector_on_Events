@@ -20,7 +20,6 @@ class News(Base):
     time = sa.Column('time', sa.TIMESTAMP)
 
     def __init__(self, news_data):
-        self.news_id = news_data['news_id']
         self.header = news_data['header']
         self.data = news_data['data']
         self.time = news_data['time']
