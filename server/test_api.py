@@ -1,12 +1,14 @@
 import requests
 from datetime import datetime, timedelta
 
-address = 'http://127.0.0.1:5000'
+import config
+
+address = config.HOST_ADDRESS + config.HOST_PORT
 
 
 # ------------------------------TEST_USER------------------------------
 def test_user_add_correct():
-    method = "/api/user_add"
+    method = "/api/user/add"
     phone_num = '9117252325'
     mail_box = 'nikkitkit0707@mail.ru'
     vk_link = 'https://vk.com/n.sulimenko12'
@@ -25,7 +27,7 @@ def test_user_add_correct():
 
 
 def test_user_get_profile(user_id: int = 1):
-    method = "/api/user_get_profile"
+    method = "/api/user/profile"
 
     test_user_id = {'user_id': user_id}
 
@@ -35,7 +37,7 @@ def test_user_get_profile(user_id: int = 1):
 
 
 def test_user_update(user_id: int = 1):
-    method = "/api/user_update"
+    method = "/api/user/update"
 
     test_user_id = user_id
 
@@ -61,7 +63,7 @@ def test_user_update(user_id: int = 1):
 
 
 def test_user_delete(user_id: int = 1):
-    method = "/api/user_delete"
+    method = "/api/user/delete"
 
     user_id = user_id
 
@@ -73,7 +75,7 @@ def test_user_delete(user_id: int = 1):
 
 # ------------------------------TEST_EVENT------------------------------
 def test_event_add():
-    method = "/api/event_add"
+    method = "/api/event/add"
 
     time_start = '09-14-2022 00:00:00'
     time_end = '09-15-2022 00:00:10'
@@ -93,7 +95,7 @@ def test_event_add():
 
 
 def test_event_get(event_id: int = 1):
-    method = "/api/event_get"
+    method = "/api/event/get"
 
     test_event_id = {'event_id': event_id}
 
@@ -103,7 +105,7 @@ def test_event_get(event_id: int = 1):
 
 
 def test_event_get_all():
-    method = "/api/event_get_all"
+    method = "/api/event/get_all"
 
     response = requests.post(address + method)
     print(response.content)
@@ -111,7 +113,7 @@ def test_event_get_all():
 
 
 def test_event_update(event_id: int = 1):
-    method = "/api/event_update"
+    method = "/api/event/update"
 
     event_name_update = 'TEST_update_really>!'
 
@@ -134,7 +136,7 @@ def test_event_update(event_id: int = 1):
 
 
 def test_event_delete(event_id: int = 1):
-    method = "/api/event_delete"
+    method = "/api/event/delete"
 
     test_event_id = {'event_id': event_id}
 
@@ -144,7 +146,7 @@ def test_event_delete(event_id: int = 1):
 
 # -----------------------------TEST_NOTIFY-------------------------------
 def test_notify_add(event_id: int = 1):
-    method = "/api/notify_add"
+    method = "/api/notify/add"
 
     notify_data = 'You are win in event ' + str(event_id)
     # time_notify = str(datetime.now())
@@ -159,7 +161,7 @@ def test_notify_add(event_id: int = 1):
 
 # ------------------------TEST_EVENT_REGISTRATION------------------------
 def test_event_registration(event_id: int = 1, user_id: int = 1):
-    method = "/api/event_registration"
+    method = "/api/event/confirm/register"
 
     test_data_to_registration = {'event_id': event_id,
                                  'user_id': user_id}
@@ -170,7 +172,7 @@ def test_event_registration(event_id: int = 1, user_id: int = 1):
 
 
 def test_event_cancel_registration(event_id: int = 1, user_id: int = 1):
-    method = "/api/event_cancel_registration"
+    method = "/api/event/confirm/cancel_register"
 
     test_data_to_cancel_registration = {'event_id': event_id,
                                         'user_id': user_id}
@@ -180,10 +182,8 @@ def test_event_cancel_registration(event_id: int = 1, user_id: int = 1):
 
 
 # ----------------------------TEST_EVENT_APPLY---------------------------
-def test_apply_event():
-    method = "/api/apply_event"
-    event_id = 1
-    user_id = 1
+def test_apply_event(event_id: int = 1, user_id: int = 1):
+    method = "/api/event/confirm/apply"
 
     test_data_to_apply_event = {'event_id': event_id,
                                 'user_id': user_id}

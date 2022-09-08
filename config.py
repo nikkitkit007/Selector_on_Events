@@ -1,4 +1,7 @@
 
+HOST_ADDRESS = "127.0.0.1"
+HOST_PORT = "5000"
+
 # ------------------------
 DATABASE = "postgres"
 USERNAME = "postgres"

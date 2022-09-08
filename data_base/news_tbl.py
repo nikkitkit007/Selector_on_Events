@@ -3,11 +3,11 @@ import sqlalchemy as sa
 from .base import Base, Session, engine
 
 import logging
-from logger_config import LOGGING_CONFIG
+from logger_config import info_logger, error_logger
 
-logging.config.dictConfig(LOGGING_CONFIG)
-info_logger = logging.getLogger('info_logger')
-error_logger = logging.getLogger('error_logger')
+# logging.config.dictConfig(LOGGING_CONFIG)
+# info_logger = logging.getLogger('info_logger')
+# error_logger = logging.getLogger('error_logger')
 
 
 class News(Base):

@@ -40,9 +40,9 @@ LOGGING_CONFIG = {
     }
 }
 
-# logging.config.dictConfig(LOGGING_CONFIG)
-# logger_info = logging.getLogger('info_logger')
+logging.config.dictConfig(LOGGING_CONFIG)
+info_logger = logging.getLogger('info_logger')
 # logger_info.debug('debug log')
 #
-# logger_error = logging.getLogger('error_logger')
+error_logger = logging.getLogger('error_logger')
 # logger_error.error('here error!')
