@@ -1,11 +1,8 @@
-import data_base.db_worker as db
 from datetime import datetime, timedelta
 import config
 import re
 import data_base.event_tbl as event_tbl
 import data_base.user_tbl as user_tbl
-import data_base.notify_tbl as notify_tbl
-import data_base.news_tbl as news_tbl
 
 # DB = db.DataBaseEvents()
 

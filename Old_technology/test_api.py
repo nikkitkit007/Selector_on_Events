@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import config
 
-address = config.HOST_ADDRESS + config.HOST_PORT
+address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
 
 
 # ------------------------------TEST_USER------------------------------
@@ -192,8 +192,8 @@ def test_apply_event(event_id: int = 1, user_id: int = 1):
     return response.status_code == 200
 
 
-# print(test_user_add_correct())
-# print(test_user_get_profile(user_id=3))
+print(test_user_add_correct())
+print(test_user_get_profile(user_id=3))
 # print(test_user_update(user_id=3))
 # print(test_user_get_profile(user_id=3))
 # print(test_user_delete(user_id=3))
