@@ -91,7 +91,7 @@ def test_event_add():
 def test_event_get(event_id: int = 1):
     method = "/api/event/get"
 
-    test_event_id = {'event_id': event_id}
+    test_event_id = {"event_id": event_id}
 
     response = requests.get(address + method, json=test_event_id)
     print(response.content)
@@ -250,23 +250,23 @@ def test_apply_event():
     return response.status_code == 200
 
 
-# print(test_user_add_correct())
-# print(test_user_get_profile(4))
-# print(test_user_update(4))
-# print(test_user_get_profile(4))
-# print(test_user_delete(4))
+print(test_user_add_correct())
+print(test_user_get_profile(5))
+print(test_user_update(5))
+print(test_user_get_profile(5))
+print(test_user_delete(2))
 
-# print(test_event_add())
-# print(test_event_get(3))
-# print(test_event_get_all())
-# print(test_event_update())
-# print(test_event_delete())
+print(test_event_add())
+print(test_event_get(3))
+print(test_event_get_all())
+print(test_event_update(4))
+print(test_event_delete(2))
 
-# print(test_news_add())
-# print(test_news_get(3))
-# print(test_news_get_all())
-# print(test_news_update(2))
-# print(test_news_delete())
+print(test_news_add())
+print(test_news_get(3))
+print(test_news_get_all())
+print(test_news_update(2))
+print(test_news_delete())
 
 # print(test_notify_add())
 
