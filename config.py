@@ -14,7 +14,7 @@ SCHEMA_NAME = "ITMO_Event"
 TBL_EVENTS = "Event"
 TBL_USERS = "User"
 TBL_NOTIFIES = "Notify"
-TBL_NEWS = "New"
+TBL_NEWS = "News"
 
 # ------------------------
 TIME_TO_POST_EVENT = 10
@@ -71,7 +71,7 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 # ----------news---------------
 # news_id serial primary key not null
 # header varchar
-# data_base text
+# data text
 # time TIMESTAMP
 
 # -----------------------------------

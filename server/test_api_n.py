@@ -63,12 +63,11 @@ def test_user_delete(user_id: int = 1):
 
     test_user_id = {'user_id': user_id}
 
-    response = requests.post(address + method, json=test_user_id)
+    response = requests.delete(address + method, json=test_user_id)
     return response.status_code == 200
 
 
 # ------------------------------TEST_EVENT------------------------------
-# ----------------------------------------------------------------------
 def test_event_add():
     method = "/api/event/add"
 
@@ -153,7 +152,66 @@ def test_notify_add():
     return response.status_code == 200
 
 
+# ------------------------------TEST_NEWS------------------------------
+def test_news_add():
+    method = "/api/news/add"
+
+    time = '09-15-2022 00:01:00'
+
+    test_news = {'header': 'Hi Nik!',
+                 'data': 'Good job!',
+                 'time': time}
+
+    response = requests.post(address + method, json=test_news)
+    return response.status_code == 200
+
+
+def test_news_get(news_id: int = 1):
+    method = "/api/news/get"
+
+    test_news_id = {'news_id': news_id}
+
+    response = requests.get(address + method, json=test_news_id)
+    print(response.content)
+    return response.status_code == 200
+
+
+def test_news_get_all():
+    method = "/api/news/get_all"
+
+    response = requests.get(address + method)
+    print(response.content)
+    return response.status_code == 200
+
+
+def test_news_update(news_id: int = 1):
+    method = "/api/news/update"
+
+    update_header = 'I was updated'
+    time = '09-15-2022 00:01:00'
+
+    test_data_update = {'news_id': news_id,
+                        'news_data_to_update': {
+                            'header': update_header,
+                            'data': 'Good job!',
+                            'time': time
+                        }}
+
+    response = requests.post(address + method, json=test_data_update)
+    return response.status_code == 200
+
+
+def test_news_delete(news_id: int = 1):
+    method = "/api/news/delete"
+
+    test_news_id = {'news_id': news_id}
+
+    response = requests.delete(address + method, json=test_news_id)
+    return response.status_code == 200
+
+
 # ------------------------TEST_EVENT_REGISTRATION------------------------
+
 def test_event_registration():
     method = "/api/event_registration"
     event_id = 1
@@ -193,15 +251,22 @@ def test_apply_event():
 
 
 # print(test_user_add_correct())
-# print(test_user_get_profile())
-# print(test_user_update())
+# print(test_user_get_profile(4))
+# print(test_user_update(4))
+# print(test_user_get_profile(4))
 # print(test_user_delete(4))
 
 # print(test_event_add())
-# print(test_event_get())
+# print(test_event_get(3))
 # print(test_event_get_all())
 # print(test_event_update())
 # print(test_event_delete())
+
+# print(test_news_add())
+# print(test_news_get(3))
+# print(test_news_get_all())
+# print(test_news_update(2))
+# print(test_news_delete())
 
 # print(test_notify_add())
 

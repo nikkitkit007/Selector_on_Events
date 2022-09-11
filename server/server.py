@@ -1,4 +1,3 @@
-import json
 
 import flask
 
@@ -27,7 +26,7 @@ create_db()
 
 @app.route('/')
 def index():
-    return "User info..."
+    return "Nice day..."
 
 
 # ----------------------------------EVENT-----------------------------------
@@ -39,10 +38,10 @@ def event_add() -> Tuple[flask.Response, int]:
         Event.add(request.json)
 
         info_logger.info(f"Event \"{request.json['event_name']}\" added!")
-        return flask.Response("200"), 200
+        return flask.make_response("200"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/event/update', methods=["POST"])
@@ -50,30 +49,32 @@ def event_update() -> Tuple[flask.Response, int]:
     try:
         Event.update(int(request.json['event_id']), request.json['data_to_update'])
         info_logger.info(f"Event with id:{int(request.json['event_id'])} updated!")
-        return flask.Response("200"), 200
+        return flask.make_response("200"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/event/get', methods=["GET"])
 def event_get() -> Tuple[flask.Response, int]:
     try:
         events = Event.get(int(request.json.get('event_id', 0)), all_events=False)
-        return (flask.Response(events), 200) if events else (flask.Response({"error": "Not events"}), 400)
+        return (flask.make_response({"event": events}), 200) if events \
+            else (flask.make_response({"error": "Not events"}), 400)
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/event/get_all', methods=["GET"])
 def event_get_all() -> Tuple[flask.Response, int]:
     try:
         events = Event.get(0, all_events=True)
-        return (flask.Response({'events': events}), 200) if events else (flask.Response({"error": "Not events"}), 400)
+        return (flask.make_response({'events': events}), 200) if events \
+            else (flask.make_response({"error": "Not events"}), 400)
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/event/delete', methods=["DELETE"])
@@ -81,10 +82,10 @@ def event_delete() -> Tuple[flask.Response, int]:
     try:
         Event.delete(int(request.json.get('event_id')))
         info_logger.info(f"Event with id: {int(request.json.get('event_id'))} deleted.")
-        return flask.Response("200"), 200
+        return flask.make_response("200"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 # -------------------------EVENT_apply/decline------------------------------
 
@@ -98,10 +99,10 @@ def apply_event():
         if checker.is_user_can_apply_event(user_id):
             User.apply_event(user_id, event_id)
             info_logger.info(f'User with id: {user_id} applied event {event_id}.')
-        return flask.Response("200"), 200
+        return flask.make_response("200"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/decline_event', methods=["POST"])
@@ -126,23 +127,23 @@ def decline_event():
 def registration(event_id: int, user_id: int, cancel: bool = False) -> Tuple[flask.Response, int]:
     try:
         if not event_id or not user_id:
-            return flask.Response({"API-error": "invalid user_id or/and event_id"}), 200
+            return flask.make_response({"API-error": "invalid user_id or/and event_id"}), 200
         if checker.is_user_banned(user_id):
-            return flask.Response({"error": "You have been banned"}), 200
+            return flask.make_response({"error": "You have been banned"}), 200
         if not checker.is_event_opened_for_want(event_id):
-            return flask.Response({"error": "Event close for registration"}), 200
+            return flask.make_response({"error": "Event close for registration"}), 200
         if not (checker.is_user_on_event_want(user_id, event_id) == cancel and
                 not checker.is_user_on_event_go(user_id, event_id)):
-            return flask.Response({"error": "Not accepted to event"}), 200
+            return flask.make_response({"error": "Not accepted to event"}), 200
 
         if cancel:
             Event.update_del_users_id_want(event_id, user_id)
         else:
             Event.update_add_users_id_want(event_id, user_id)
-        return flask.Response("OK"), 200
+        return flask.make_response("OK"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/event_registration', methods=["POST"])
@@ -168,17 +169,17 @@ def user_add() -> Tuple[flask.Response, int]:
 
     if not checker.is_correct_phone(request.json['phone']):
         error_logger.error("User add incorrect phone number")
-        return flask.Response({"error": "Wrong phone"}), 400
+        return flask.make_response({"error": "Wrong phone"}), 400
     if not checker.is_correct_mail(request.json['mail']):
         error_logger.error("User add incorrect mail")
-        return flask.Response({"error": "Wrong mail"}), 400
+        return flask.make_response({"error": "Wrong mail"}), 400
     try:
         User.add(user_to_add)
         info_logger.info(f'User {request.json["user_name"]} added')
-        return flask.Response("OK"), 200
+        return flask.make_response("OK"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/user/get_profile', methods=["GET"])
@@ -186,10 +187,10 @@ def user_get_profile() -> Tuple[flask.Response, int]:
     user_id = request.json['user_id']
     try:
         user = User.get(user_id)
-        return flask.Response(user), 200
+        return flask.make_response(user), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/user/get_history', methods=["GET"])  # feature
@@ -204,59 +205,111 @@ def user_get_history():
         return str(E), 400
 
 
-@app.route('/api/update', methods=["POST"])
+@app.route('/api/user/update', methods=["POST"])
 def user_update() -> Tuple[flask.Response, int]:
-    user_id = int(request.json['user_id'])
-    user_data_to_update = request.json['user_data_to_update']
-
     try:
-        User.update(user_id, user_data_to_update)
-        return flask.Response("OK"), 200
+        User.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'))
+        info_logger.info(f"User with id:{int(request.json['user_id'])} updated!")
+        return flask.make_response("OK"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
-@app.route('/api/delete', methods=["DELETE"])
+@app.route('/api/user/delete', methods=["DELETE"])
 def user_delete() -> Tuple[flask.Response, int]:
-    user_id = int(request.json['user_id'])
     try:
-        User.delete(user_id)
-        return flask.Response("OK"), 200
+        User.delete(int(request.json.get('user_id')))
+        info_logger.info(f"User with id: {int(request.json.get('user_id'))} deleted.")
+        return flask.make_response("OK"), 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}), 500
+        return flask.make_response({"error": str(E)}), 500
 
 
 # -------------------------NOTIFIES--------------------------------
 
 @app.route('/api/notify/add', methods=["POST"])
-def notify_add():
-    notify_to_add = request.json
+def notify_add() -> Tuple[flask.Response, int]:
     try:
-        Notify.add(notify_to_add)
-        return "OK", 200
-    except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
+        Notify.add(request.json)
+        info_logger.info(f"Notify with id: {int(request.json.get('notify_id'))} added.")
+        return flask.make_response("OK"), 200
     except Exception as E:
-        return str(E), 400
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/notify/send', methods=["POST"])
 def notify_send():
-    user_id = request.json['user_id']
+    # maybe I delete this API ! # TODO
     notifies = []
     try:
-        notifies_id = User.get(user_id)['notify_id']  # user's notifies
+        notifies_id = User.get(request.json.get('user_id'))['notify_id']  # user's notifies
 
         for notify_id in notifies_id:
             notifies.append(Notify.get(notify_id))  # list with notifies json
 
         return notifies
-    except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
     except Exception as E:
-        return str(E), 400
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
+
+
+# ----------------------------News---------------------------------
+@app.route('/api/news/add', methods=["POST"])
+def news_add() -> Tuple[flask.Response, int]:
+    try:
+        News.add(request.json)
+        info_logger.info(f"News with id: {request.json.get('header')} added.")
+        return flask.make_response("OK"), 200
+    except Exception as E:
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
+
+
+@app.route('/api/news/get', methods=["GET"])
+def news_get() -> Tuple[flask.Response, int]:
+    try:
+        news = News.get(int(request.json.get('news_id', 0)), all_news=False)
+        return (flask.make_response({"news": news}), 200) if news \
+            else (flask.make_response({"error": "Not news"}), 400)
+    except Exception as E:
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
+
+
+@app.route('/api/news/get_all', methods=["GET"])
+def news_get_all() -> Tuple[flask.Response, int]:
+    try:
+        news = News.get(0, all_news=True)
+        return (flask.make_response({'news': news}), 200) if news \
+            else (flask.make_response({"error": "Not news"}), 400)
+    except Exception as E:
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
+
+
+@app.route('/api/news/update', methods=["POST"])
+def news_update() -> Tuple[flask.Response, int]:
+    try:
+        News.update(int(request.json.get('news_id')), request.json.get('news_data_to_update'))
+        info_logger.info(f"News with id:{int(request.json['news_id'])} updated!")
+        return flask.make_response("OK"), 200
+    except Exception as E:
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
+
+
+@app.route('/api/news/delete', methods=["DELETE"])
+def news_delete() -> Tuple[flask.Response, int]:
+    try:
+        News.delete(int(request.json.get('news_id')))
+        info_logger.info(f"News with id: {int(request.json.get('news_id'))} deleted.")
+        return flask.make_response("OK"), 200
+    except Exception as E:
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
 
 
 if __name__ == '__main__':
