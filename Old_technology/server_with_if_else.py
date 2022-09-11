@@ -3,8 +3,8 @@ import sys
 
 import flask
 import config
-import services.selector as selector
-import services.checker as checker
+import server.services.selector as selector
+import server.services.checker as checker
 from flask import Flask, request, jsonify
 
 from logger_config import info_logger, error_logger
@@ -45,30 +45,30 @@ def api_handle_user(method):
                 user_tbl.user_update(int(request.json['user_id']), request.json['user_data_to_update'])
                 info_logger.info(f"User with id {int(request.json['user_id'])} updated!")
             else:
-                return flask.Response({"error": "Invalid method!"}, status=503)
+                return flask.Response({"error": "Invalid method!"}), 503
         elif request.method == "GET":
             if method == "profile":
                 if user_id := request.args.get("user_id") is not None:
                     user = user_tbl.user_get(user_id)
                     return user, 200
                 else:
-                    return flask.Response({"error": "Empty user id"}, status=504)
+                    return flask.Response({"error": "Empty user id"}), 504
             else:
-                return flask.Response({"error": "Invalid method!"}, status=503)
+                return flask.Response({"error": "Invalid method!"}), 503
         elif request.method == "DELETE":
             if method == "delete":
                 if user_id := request.args.get("user_id") is not None:
                     user_tbl.user_delete(user_id)
                 else:
-                    return flask.Response({"error": "Empty user id"}, status=504)
+                    return flask.Response({"error": "Empty user id"}), 503
             else:
-                return flask.Response({"error": "Invalid method"}, status=504)
+                return flask.Response({"error": "Invalid method"}), 504
         else:
-            return flask.Response({"error": "Invalid CRUD"}, status=503)
+            return flask.Response({"error": "Invalid CRUD"}), 503
         return '', 200
     except Exception as E:
         error_logger.error(E, request.json)
-        return flask.Response({"error": str(E)}, status=500)
+        return flask.Response({"error": str(E)}), 500
 
 
 # ----------------------------------EVENT-----------------------------------
@@ -177,14 +177,14 @@ def api_handle_notify(method):
                 notify_tbl.notify_add(request.json)
                 info_logger.info(f"Notify {request.json['notify_header']} added")
             elif method == "update":
-                # event_tbl.event_update(int(request.json['event_id']), request.json['data_to_update'])
+                # event_tbl.update(int(request.json['event_id']), request.json['data_to_update'])
                 # info_logger.info(f"Event with id:{int(request.json['event_id'])} updated!")
                 pass
             else:
                 return flask.Response({"error": "Invalid method!"}, status=503)
         elif request.method == "GET":
             if method == "get" or method == "get_all":
-                # events = event_tbl.event_get(int(request.json.get('event_id', 0)), all_events=method == "get_all")
+                # events = event_tbl.get(int(request.json.get('event_id', 0)), all_events=method == "get_all")
                 # return events, 200 if events else "Not events", 400
                 pass
             elif method == "get_actual":

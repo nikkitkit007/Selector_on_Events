@@ -629,39 +629,39 @@ def user_test():
 
     user_id_test = 2
 
-    # user1 = DB.user_get(user_id_test)
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))
     # # print(user1['user_id'])
 
-    # DB.user_update(user_id_test, upd_test_user1)
-    # user1 = DB.user_get(user_id_test)
+    # DB.update(user_id_test, upd_test_user1)
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))
 
     # # add notify -----------------------------------
-    # DB.user_update_add_notify(user_id_test, 1, datetime.now())
-    # user1 = DB.user_get(user_id_test)
+    # DB.update_add_notify(user_id_test, 1, datetime.now())
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))
 
     # # delete notify -----------------------------------
-    # DB.user_update_del_notify(user_id_test, 1)
-    # user1 = DB.user_get(user_id_test)
+    # DB.update_del_notify(user_id_test, 1)
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))
 
     # # add ban_date -----------------------------------
     # ban = datetime.now() + timedelta(10)
     # print(ban)
-    # DB.user_update_ban_date(user_id_test, ban)
-    # user1 = DB.user_get(user_id_test)
+    # DB.update_ban_date(user_id_test, ban)
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))
 
     # # add score -----------------------------------
     # scr = 100
-    # DB.user_update_add_score(user_id_test, scr)
-    # user1 = DB.user_get(user_id_test)
+    # DB.update_add_score(user_id_test, scr)
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))
 
-    # DB.user_delete(user_id_test)
-    # user1 = DB.user_get(user_id_test)
+    # DB.delete(user_id_test)
+    # user1 = DB.get(user_id_test)
     # print(dict(user1))            # !ERROR because it's none
 
 
@@ -695,8 +695,8 @@ def event_test():
                        'image': '/images/lol/lal.jpeg'}
 
     event_id = 1
-    # DB.event_add(test_event)
-    # event1 = DB.event_get(event_id)
+    # DB.add(test_event)
+    # event1 = DB.get(event_id)
     # print(dict(event1))
     #
     DB.event_update(event_id, upd_test_event2)
@@ -704,20 +704,20 @@ def event_test():
     event1 = DB.event_get(event_id)
     print(dict(event1))
 
-    # DB.event_update_add_users_id_want(event_id, 99)
-    # event1 = DB.event_get(event_id)
+    # DB.update_add_users_id_want(event_id, 99)
+    # event1 = DB.get(event_id)
     # print(dict(event1))
 
-    # DB.event_update_del_users_id_want(event_id, 101)
-    # event1 = DB.event_get(event_id)
+    # DB.update_del_users_id_want(event_id, 101)
+    # event1 = DB.get(event_id)
     # print(dict(event1))
 
-    # DB.event_update_add_users_id_go(event_id, 99)
-    # event1 = DB.event_get(event_id)
+    # DB.update_add_users_id_go(event_id, 99)
+    # event1 = DB.get(event_id)
     # print(dict(event1))
 
-    # DB.event_update_del_users_id_go(event_id, 101)
-    # event1 = DB.event_get(event_id)
+    # DB.update_del_users_id_go(event_id, 101)
+    # event1 = DB.get(event_id)
     # print(dict(event1))
 
     # DB.event_delete(1)
@@ -742,7 +742,7 @@ def notify_test():
     DB.notify_update(notify_id, upd_test_notify)
     notify = DB.notify_get(notify_id)
     print(dict(notify))
-    # DB.notify_delete(1)
+    # DB.delete(1)
 
 
 def news_test():
@@ -763,7 +763,7 @@ if __name__ == "__main__":
 
     # user_test()
 
-    # DB.event_update_add_users_id_want(4, 1)
+    # DB.update_add_users_id_want(4, 1)
 
     # event_test()
 

@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import sessionmaker, scoped_session, Query, Mapper
 
 
-def _get_query_cls(mapper, session):
+def _get_query_cls(mapper, _session):
     if mapper:
         m = mapper
         if isinstance(m, tuple):
@@ -17,10 +17,10 @@ def _get_query_cls(mapper, session):
             m = m.entity
 
         try:
-            return m.__query_cls__(mapper, session)
+            return m.__query_cls__(mapper, _session)
         except AttributeError:
             pass
-    return Query(mapper, session)
+    return Query(mapper, _session)
 
 
 Session = sessionmaker(query_cls=_get_query_cls)
@@ -29,7 +29,7 @@ engine = create_engine(f"postgresql+psycopg2://{config.USERNAME}:{config.PASSWOR
                        echo=False)
 metadata = MetaData(bind=engine, schema=config.SCHEMA_NAME)
 
-# current_session = scoped_session(Session)
+# current_session = scoped_session(session)
 
 
 @as_declarative(metadata=metadata)

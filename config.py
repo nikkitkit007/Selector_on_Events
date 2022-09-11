@@ -76,9 +76,9 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 
 # -----------------------------------
 # ----------server_func--------------
-# event_add
-# event_update
-# event_get
+# add
+# update
+# get
 #
 # apply_event
 # decline_event

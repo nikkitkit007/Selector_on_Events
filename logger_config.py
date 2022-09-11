@@ -6,7 +6,7 @@ LOGGING_CONFIG = {
 
     'formatters': {
         'default_formatter': {
-            'format': '[%(levelname)s:%(asctime)s] %(funcName)s: %(message)s'
+            'format': '%(levelname)s : [%(asctime)s] %(funcName)s: %(message)s'
         }
     },
 

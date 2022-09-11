@@ -8,10 +8,10 @@ from .base import Base, engine
 #   |
 #  / \
 #  | |
-from .event_tbl import Event
-from .user_tbl import User
-from .notify_tbl import Notify
-from .news_tbl import News
+# from .event_tbl import Event
+# from .user_tbl import User
+# from .notify_tbl import Notify
+# from .news_tbl import News
 
 
 def create_all_tables():
@@ -46,9 +46,9 @@ if __name__ == "__main__":
     #               'coefficient': 50,
     #               'image': '/images/lol/lal.jpeg'}
 
-    # event.event_add(test_event)
+    # event.add(test_event)
 
-    # event_got = event.event_get(3)
+    # event_got = event.get(3)
     # print(event_got)
 
     # data_to_upd = {'event_name': 'event_name_update',
@@ -60,10 +60,10 @@ if __name__ == "__main__":
     #                'coefficient': 50,
     #                'image': '/images/lol/lal.jpeg'}
 
-    # event_tbl.event_update(3, data_to_upd)
+    # event_tbl.update(3, data_to_upd)
 
     # event_tbl.event_delete(22)
 
-    # event_tbl.event_update_add_users_id_go(13, 13)
-    # event_tbl.event_update_add_users_id_want(1, 12)
-    # event_tbl.event_update_del_users_id_want(12, 12)
+    # event_tbl.update_add_users_id_go(13, 13)
+    # event_tbl.update_add_users_id_want(1, 12)
+    # event_tbl.update_del_users_id_want(12, 12)
