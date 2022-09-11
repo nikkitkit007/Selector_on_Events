@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 
 import data_base.event_tbl as event_tbl
 import data_base.user_tbl as user_tbl
-import data_base.notify_tbl as notify_tbl
-import data_base.news_tbl as news_tbl
+# import data_base.notify_tbl as notify_tbl
+# import data_base.news_tbl as news_tbl
 
 # DB = db.DataBaseEvents()
 
@@ -63,26 +63,23 @@ def select_users_on_event(event_id: int):
     return False
 
 
-def user_apply_event(user_id: int, event_id: int):
-    event_tbl.event_update_add_users_id_go(event_id, user_id)
-    event_tbl.event_update_del_users_id_want(event_id, user_id)
-
-    score = event_tbl.event_get(event_id)['coefficient']
-    user_tbl.user_update_add_score(user_id, score)
-
-    user_tbl.user_update_del_timer(user_id)
-
-    return True
-
-
-def user_decline_event(user_id: int, event_id: int):
-    event_tbl.event_update_del_users_id_go(event_id, user_id)
-    event = event_tbl.event_get(event_id)
-    time_now = datetime.now()
-
-    if time_now > event['time_start'] - timedelta(config.TIME_TO_BAN):
-        user_tbl.user_update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
-    return True
+# def user_apply_event(user_id: int, event_id: int):
+#     event_tbl.Event.update_add_users_id_go(event_id, user_id)
+#     event_tbl.Event.update_del_users_id_want(event_id, user_id)
+#
+#     score = event_tbl.event_get(event_id)['coefficient']
+#     user_tbl.user_update_add_score(user_id, score)
+#
+#     user_tbl.user_update_del_timer(user_id)
+#
+#
+# def decline_event(user_id: int, event_id: int):
+#     event_tbl.Event.update_del_users_id_go(event_id, user_id)
+#     event = event_tbl.event_get(event_id)
+#     time_now = datetime.now()
+#
+#     if time_now > event['time_start'] - timedelta(config.TIME_TO_BAN):
+#         user_tbl.user_update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
 
 
 # gen_users()
@@ -98,17 +95,3 @@ if __name__ == "__main__":
             # every user get notify to accept or decline
 
     users_id_go = select_users_on_event(event_id_to_go)
-
-    # user_want_to_go_score = get_user_score(users_id_want)
-    # user_want_to_go_score[:10]
-    # print(user_want_to_go_score)
-
-# dict = {}
-# lol = 12
-# dict[lol] = 12
-# print(dict)
-
-# people_count = 10
-# users_id_go = users_id_want[:people_count]
-#
-# print(users_id_go)

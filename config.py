@@ -14,7 +14,7 @@ SCHEMA_NAME = "ITMO_Event"
 TBL_EVENTS = "Event"
 TBL_USERS = "User"
 TBL_NOTIFIES = "Notify"
-TBL_NEWS = "New"
+TBL_NEWS = "News"
 
 # ------------------------
 TIME_TO_POST_EVENT = 10
@@ -35,12 +35,12 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 # ----------users--------------
 # user_id serial primary key not null
 # user_isu_number integer UNIQUE
-# user_name varchar(255)
-# user_surname varchar(255)
-# user_patronymic varchar(255)
+# user_name varchar(127)
+# user_surname varchar(127)
+# user_patronymic varchar(127)
 # phone varchar(127)
-# vk_link varchar(255)
-# mail varchar(255)
+# vk_link varchar(127)
+# mail varchar(127)
 # is_russian_citizenship bool
 # score integer
 # ban_date TIMESTAMP
@@ -50,35 +50,35 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 
 # ----------events---------------
 # event_id serial primary key not null
-# event_name varchar
+# event_name varchar(127)
 # time_start TIMESTAMP
 # time_end TIMESTAMP
 # description text
-# url_pdf varchar
+# url_pdf varchar(255)
 # people_count integer
 # coefficient integer
 # users_id_want integer[]
 # users_id_go integer[]
-# image varchar
+# image varchar(127)
 
 # ----------notifies---------------
 # notify_id serial primary key not null
 # event_id integer
 # time TIMESTAMP
-# notify_header varchar
+# notify_header varchar(126)
 # notify_data text
 
 # ----------news---------------
 # news_id serial primary key not null
-# header varchar
-# data_base text
+# header varchar(127)
+# data text
 # time TIMESTAMP
 
 # -----------------------------------
 # ----------server_func--------------
-# event_add
-# event_update
-# event_get
+# add
+# update
+# get
 #
 # apply_event
 # decline_event

@@ -1,7 +1,6 @@
 import config
 import sqlalchemy as sa
-from .base import Base, Session, engine
-
+from .base import Base, session, engine
 import logging
 from logger_config import LOGGING_CONFIG
 
@@ -46,8 +45,8 @@ class Event(Base):
     def get_dict(self):
         atts_dict = {"event_id": self.event_id,
                      "event_name": self.event_name,
-                     "time_start": self.time_start,
-                     "time_end": self.time_end,
+                     "time_start": self.time_start.strftime("%m/%d/%Y, %H:%M:%S"),
+                     "time_end": self.time_end.strftime("%m/%d/%Y, %H:%M:%S"),
                      "description": self.description,
                      "url_pdf": self.url_pdf,
                      "people_count": self.people_count,
@@ -57,140 +56,138 @@ class Event(Base):
                      "image": self.image}
         return atts_dict
 
-
-def event_add(event_to_add: dict):
-    with Session(bind=engine) as local_session:
-        new_event = Event(event_to_add)
-
-        local_session.add(new_event)
-        local_session.commit()
-
-
-def event_get(event_id: int = 0, all_events: bool = False):
-    with Session(bind=engine) as local_session:
-        if all_events:
-            events = local_session.query(Event).all()
-            if events:
-                all_events_data = []
-                for event in events:
-                    all_events_data.append(event.get_dict())
-                return all_events_data
-        else:
-            event = local_session.query(Event).filter(Event.event_id == event_id).first()
-            if event:
-                return event.get_dict()
-    return {}
-
-
-def event_update(event_id: int, event_data_to_update: dict):
-    with Session(bind=engine) as local_session:
-        event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
-        if event_to_update:
-            event_to_update.event_name = event_data_to_update["event_name"]
-            event_to_update.time_start = event_data_to_update["time_start"]
-            event_to_update.time_end = event_data_to_update["time_end"]
-            event_to_update.description = event_data_to_update["description"]
-            event_to_update.url_pdf = event_data_to_update["url_pdf"]
-            event_to_update.people_count = int(event_data_to_update["people_count"])
-            event_to_update.coefficient = int(event_data_to_update["coefficient"])
-            event_to_update.image = event_data_to_update['image']
-
+    @staticmethod
+    def add(event_to_add: dict):
+        with session(bind=engine) as local_session:
+            local_session.add(Event(event_to_add))
             local_session.commit()
-        else:
-            info_logger.error(f'Event {event_id} does not exist!')
 
-
-def event_delete(event_id: int):
-    with Session(bind=engine) as local_session:
-        event_to_delete = local_session.query(Event).filter(Event.event_id == event_id).first()
-        if event_to_delete:
-            local_session.delete(event_to_delete)
-            local_session.commit()
-        else:
-            info_logger.error(f'Event {event_id} does not exist!')
-
-
-def event_update_add_users_id_want(event_id: int, user_id_want: int):
-    with Session(bind=engine) as local_session:
-        event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
-        if event_to_update:
-            cur_users_id_want_list = list(event_to_update.users_id_want)
-
-            if cur_users_id_want_list:
-                cur_users_id_want_list.append(user_id_want)
-                new_users_id_want_list = set(cur_users_id_want_list)
+    @staticmethod
+    def get(event_id: int = 0, all_events: bool = False):
+        with session(bind=engine) as local_session:
+            if all_events:
+                events = local_session.query(Event).all()
+                if events:
+                    all_events_data = []
+                    for event in events:
+                        all_events_data.append(event.get_dict())
+                    return all_events_data
             else:
-                new_users_id_want_list = {user_id_want}
+                event = local_session.query(Event).filter(Event.event_id == event_id).first()
+                if event:
+                    return event.get_dict()
+        return {}
 
-            event_to_update.users_id_want = new_users_id_want_list
-            local_session.commit()
-        else:
-            info_logger.error(f'Event {event_id} does not exist!')
+    @staticmethod
+    def update(event_id: int, event_data_to_update: dict):
+        with session(bind=engine) as local_session:
+            event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
+            if event_to_update:
+                event_to_update.event_name = event_data_to_update["event_name"]
+                event_to_update.time_start = event_data_to_update["time_start"]
+                event_to_update.time_end = event_data_to_update["time_end"]
+                event_to_update.description = event_data_to_update["description"]
+                event_to_update.url_pdf = event_data_to_update["url_pdf"]
+                event_to_update.people_count = int(event_data_to_update["people_count"])
+                event_to_update.coefficient = int(event_data_to_update["coefficient"])
+                event_to_update.image = event_data_to_update['image']
 
-
-def event_update_add_users_id_go(event_id: int, user_id_go: int):
-    with Session(bind=engine) as local_session:
-        event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
-        if event_to_update:
-            cur_users_id_go_list = list(event_to_update.users_id_go)
-
-            if cur_users_id_go_list:
-                cur_users_id_go_list.append(user_id_go)
-                new_users_id_go_list = set(cur_users_id_go_list)
+                local_session.commit()
             else:
-                new_users_id_go_list = {user_id_go}
+                info_logger.error(f'Event {event_id} does not exist!')
 
-            event_to_update.users_id_go = new_users_id_go_list
-            local_session.commit()
-        else:
-            info_logger.error(f'Event {event_id} does not exist!')
-
-
-def event_update_del_users_id_want(event_id: int, user_id_del: int):
-    with Session(bind=engine) as local_session:
-        event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
-        if event_to_update:
-            cur_users_id_want_list = list(event_to_update.users_id_want)
-
-            try:
-                cur_users_id_want_list.remove(user_id_del)
-            except Exception as E:
-                error_logger.error(E)
-                info_logger.error(f'User {user_id_del} does not exist in want_list on event {event_id}!')
-
-            if cur_users_id_want_list:
-                new_users_id_want_list = set(cur_users_id_want_list)
+    @staticmethod
+    def delete(event_id: int):
+        with session(bind=engine) as local_session:
+            event_to_delete = local_session.query(Event).filter(Event.event_id == event_id).first()
+            if event_to_delete:
+                local_session.delete(event_to_delete)
+                local_session.commit()
             else:
-                new_users_id_want_list = []
+                info_logger.error(f'Event {event_id} does not exist!')
 
-            event_to_update.users_id_want = new_users_id_want_list
-            local_session.commit()
-        else:
-            info_logger.error(f'Event {event_id} does not exist!')
+    @staticmethod
+    def update_add_users_id_want(event_id: int, user_id_want: int):
+        with session(bind=engine) as local_session:
+            event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
+            if event_to_update:
+                cur_users_id_want_list = list(event_to_update.users_id_want)
 
+                if cur_users_id_want_list:
+                    cur_users_id_want_list.append(user_id_want)
+                    new_users_id_want_list = set(cur_users_id_want_list)
+                else:
+                    new_users_id_want_list = {user_id_want}
 
-def event_update_del_users_id_go(self, event_id: int, user_id_del: int):
-    with Session(bind=engine) as local_session:
-        event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
-        if event_to_update:
-            cur_users_id_go_list = event_to_update.users_id_go
-
-            try:
-                cur_users_id_go_list.remove(user_id_del)
-            except Exception as E:
-                error_logger.error(E)
-                info_logger.error(f'User {user_id_del} does not exist in want_list on event {event_id}!')
-
-            if cur_users_id_go_list:
-                new_users_id_go_list = cur_users_id_go_list
+                event_to_update.users_id_want = new_users_id_want_list
+                local_session.commit()
             else:
-                new_users_id_go_list = {}
+                info_logger.error(f'Event {event_id} does not exist!')
 
-            event_to_update.users_id_go = new_users_id_go_list
+    @staticmethod
+    def update_add_users_id_go(event_id: int, user_id_go: int):
+        with session(bind=engine) as local_session:
+            event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
+            if event_to_update:
+                cur_users_id_go_list = list(event_to_update.users_id_go)
 
-            local_session.commit()
-        else:
-            info_logger.error(f'Event {event_id} does not exist!')
+                if cur_users_id_go_list:
+                    cur_users_id_go_list.append(user_id_go)
+                    new_users_id_go_list = set(cur_users_id_go_list)
+                else:
+                    new_users_id_go_list = {user_id_go}
+
+                event_to_update.users_id_go = new_users_id_go_list
+                local_session.commit()
+            else:
+                info_logger.error(f'Event {event_id} does not exist!')
+
+    @staticmethod
+    def update_del_users_id_want(event_id: int, user_id_del: int):
+        with session(bind=engine) as local_session:
+            event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
+            if event_to_update:
+                cur_users_id_want_list = list(event_to_update.users_id_want)
+
+                try:
+                    cur_users_id_want_list.remove(user_id_del)
+                except Exception as E:
+                    error_logger.error(E)
+                    info_logger.error(f'User {user_id_del} does not exist in want_list on event {event_id}!')
+
+                if cur_users_id_want_list:
+                    new_users_id_want_list = set(cur_users_id_want_list)
+                else:
+                    new_users_id_want_list = []
+
+                event_to_update.users_id_want = new_users_id_want_list
+                local_session.commit()
+            else:
+                info_logger.error(f'Event {event_id} does not exist!')
+
+    @staticmethod
+    def update_del_users_id_go(event_id: int, user_id_del: int):
+        with session(bind=engine) as local_session:
+            event_to_update = local_session.query(Event).filter(Event.event_id == event_id).first()
+            if event_to_update:
+                cur_users_id_go_list = event_to_update.users_id_go
+
+                try:
+                    cur_users_id_go_list.remove(user_id_del)
+                except Exception as E:
+                    error_logger.error(E)
+                    info_logger.error(f'User {user_id_del} does not exist in want_list on event {event_id}!')
+
+                if cur_users_id_go_list:
+                    new_users_id_go_list = cur_users_id_go_list
+                else:
+                    new_users_id_go_list = {}
+
+                event_to_update.users_id_go = new_users_id_go_list
+
+                local_session.commit()
+            else:
+                info_logger.error(f'Event {event_id} does not exist!')
 
 
 if __name__ == "__main__":
