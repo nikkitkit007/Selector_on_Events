@@ -1,18 +1,12 @@
 import config
 import sqlalchemy as sa
 from .base import Base, session, engine
-import logging
-from logger_config import LOGGING_CONFIG
 from datetime import datetime
-
-logging.config.dictConfig(LOGGING_CONFIG)
-info_logger = logging.getLogger('info_logger')
-error_logger = logging.getLogger('error_logger')
+from logger_config import info_logger, error_logger
 
 
 class Notify(Base):
     __tablename__ = config.TBL_NOTIFIES
-    __table_args__ = {'extend_existing': True}
 
     notify_id = sa.Column('notify_id', sa.Integer, primary_key=True)
     event_id = sa.Column('event_id', sa.Integer, nullable=False)

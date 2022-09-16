@@ -1,17 +1,11 @@
 import config
 import sqlalchemy as sa
 from .base import Base, session, engine
-import logging
-from logger_config import LOGGING_CONFIG
-
-logging.config.dictConfig(LOGGING_CONFIG)
-info_logger = logging.getLogger('info_logger')
-error_logger = logging.getLogger('error_logger')
+from logger_config import info_logger, error_logger
 
 
 class Event(Base):
     __tablename__ = config.TBL_EVENTS
-    __table_args__ = {'extend_existing': True}
 
     event_id = sa.Column('event_id', sa.Integer, primary_key=True)
     event_name = sa.Column('event_name', sa.String(127), nullable=False)

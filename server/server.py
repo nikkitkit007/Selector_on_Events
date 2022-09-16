@@ -3,30 +3,29 @@ import flask
 
 import config
 import sys
-import psycopg2
-import services.checker as checker
+from services.checker import Checker
 
 from flask import Flask, request
 
 from logger_config import info_logger, error_logger
 
-from data_base.db_controller import create_db
-from data_base.event_tbl import Event
-from data_base.user_tbl import User
-from data_base.notify_tbl import Notify
-from data_base.news_tbl import News
+from data_base.db_creator import DataBase
+from data_base.tbl_event import Event
+from data_base.tbl_user import User
+from data_base.tbl_notify import Notify
+from data_base.tbl_news import News
 
 from typing import Tuple
 
 app = Flask(__name__)
 sys.path.append('../')
 
-create_db()
+DataBase.create_db()
 
 
 @app.route('/')
 def index():
-    return "Nice day..."
+    return flask.make_response("2000"), 200
 
 
 # ----------------------------------EVENT-----------------------------------
@@ -137,7 +136,7 @@ def apply_event() -> Tuple[flask.Response, int]:
         event_id = int(request.json.get('event_id'))
         user_id = int(request.json.get('user_id'))
         # check he has time to apply
-        if checker.is_user_can_apply_event(user_id):
+        if Checker.is_user_can_apply_event(user_id):
             User.apply_event(user_id, event_id)
             info_logger.info(f'User with id: {user_id} applied event {event_id}.')
             return flask.make_response("User applied event"), 200
@@ -160,7 +159,7 @@ def decline_event() -> Tuple[flask.Response, int]:
         event_id = int(request.json['event_id'])
         user_id = int(request.json['user_id'])
 
-        if checker.is_user_on_event_go(user_id, event_id):
+        if Checker.is_user_on_event_go(user_id, event_id):
             User.decline_event(user_id, event_id)
             info_logger.info(f'User with id: {user_id} decline event: {event_id}.')
             return flask.make_response("User decline event"), 200
@@ -178,12 +177,12 @@ def registration(event_id: int, user_id: int, cancel: bool = False) -> Tuple[fla
     try:
         if not event_id or not user_id:
             return flask.make_response({"API-error": "invalid user_id or/and event_id"}), 200
-        if checker.is_user_banned(user_id):
+        if Checker.is_user_banned(user_id):
             return flask.make_response({"error": "You have been banned"}), 200
-        if not checker.is_event_opened_for_want(event_id):
+        if not Checker.is_event_opened_for_want(event_id):
             return flask.make_response({"error": "Event close for registration"}), 200
-        if not (checker.is_user_on_event_want(user_id, event_id) == cancel and
-                not checker.is_user_on_event_go(user_id, event_id)):
+        if not (Checker.is_user_on_event_want(user_id, event_id) == cancel and
+                not Checker.is_user_on_event_go(user_id, event_id)):
             return flask.make_response({"error": "Not accepted to event"}), 200
 
         if cancel:
@@ -240,10 +239,10 @@ def user_add() -> Tuple[flask.Response, int]:
     """
     user_to_add = request.json
 
-    if not checker.is_correct_phone(request.json['phone']):
+    if not Checker.is_correct_phone(request.json['phone']):
         error_logger.error("User add incorrect phone number")
         return flask.make_response({"error": "Wrong phone"}), 400
-    if not checker.is_correct_mail(request.json['mail']):
+    if not Checker.is_correct_mail(request.json['mail']):
         error_logger.error("User add incorrect mail")
         return flask.make_response({"error": "Wrong mail"}), 400
     try:
@@ -275,10 +274,9 @@ def user_get_history():
 
     try:
         pass
-    except psycopg2.Error as E:
-        return 'Error with db {}'.format(E), 400
     except Exception as E:
-        return str(E), 400
+        error_logger.error(E, request.json)
+        return flask.make_response({"error": str(E)}), 500
 
 
 @app.route('/api/user/update', methods=["POST"])
@@ -440,7 +438,7 @@ def news_delete() -> Tuple[flask.Response, int]:
 
 
 if __name__ == '__main__':
-    app.run(host=config.HOST_ADDRESS, port=config.HOST_PORT)  # to see mistakes
+    app.run(host=config.HOST_ADDRESS, port=config.HOST_PORT)
 
 # CRUD
 # 1) Create POST

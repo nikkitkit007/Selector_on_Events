@@ -2,17 +2,11 @@ import config
 import sqlalchemy as sa
 from .base import Base, session, engine
 
-import logging
 from logger_config import info_logger, error_logger
-
-# logging.config.dictConfig(LOGGING_CONFIG)
-# info_logger = logging.getLogger('info_logger')
-# error_logger = logging.getLogger('error_logger')
 
 
 class News(Base):
     __tablename__ = config.TBL_NEWS
-    __table_args__ = {'extend_existing': True}
 
     news_id = sa.Column('news_id', sa.Integer, primary_key=True)
     header = sa.Column('header', sa.String(127), nullable=False)
