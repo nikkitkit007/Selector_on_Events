@@ -250,12 +250,12 @@ def test_apply_event():
     return response.status_code == 200
 
 
-# print(test_user_add_correct())
-# print(test_user_get_profile(1))
-# print(test_user_update(5))
-# print(test_user_get_profile(5))
-# print(test_user_delete(2))
-#
+print(test_user_add_correct())
+print(test_user_get_profile(1))
+print(test_user_update(5))
+print(test_user_get_profile(5))
+print(test_user_delete(2))
+
 # print(test_event_add())
 # print(test_event_get(3))
 # print(test_event_get_all())
