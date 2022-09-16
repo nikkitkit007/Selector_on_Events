@@ -3,20 +3,14 @@ import sqlalchemy as sa
 
 from .base import Base, engine, session
 
-from .event_tbl import Event
+from .tbl_event import Event
 
 from datetime import datetime, timedelta
-import logging
-from logger_config import LOGGING_CONFIG
-
-logging.config.dictConfig(LOGGING_CONFIG)
-info_logger = logging.getLogger('info_logger')
-error_logger = logging.getLogger('error_logger')
+from logger_config import info_logger, error_logger
 
 
 class User(Base):
     __tablename__ = config.TBL_USERS
-    __table_args__ = {'extend_existing': True}
 
     user_id = sa.Column('user_id', sa.Integer, primary_key=True)
     user_isu_number = sa.Column('user_isu_number', sa.Integer)
