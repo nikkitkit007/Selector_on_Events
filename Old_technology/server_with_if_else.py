@@ -2,19 +2,17 @@
 import sys
 
 import flask
-import config
+from _config import config
 import server.services.selector as selector
 import server.services.checker as checker
-from flask import Flask, request, jsonify
+from flask import Flask, request
 
-from logger_config import info_logger, error_logger
+from _config.logger_config import info_logger, error_logger
 
 from data_base.db_creator import create_db
 import data_base.tbl_event as event_tbl
 import data_base.tbl_user as user_tbl
 import data_base.tbl_notify as notify_tbl
-import data_base.tbl_news as news_tbl
-
 
 app = Flask(__name__)
 sys.path.append('../')

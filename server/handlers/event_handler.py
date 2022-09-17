@@ -7,7 +7,7 @@ from typing import Tuple
 
 from server.services.checker import Checker
 
-from logger_config import info_logger, error_logger
+from _config.logger_config import info_logger, error_logger
 
 
 class EventHandler:

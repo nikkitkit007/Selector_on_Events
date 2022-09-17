@@ -1,6 +1,4 @@
-
-import config
-from datetime import datetime, timedelta
+from _config import config
 
 import data_base.tbl_event as event_tbl
 import data_base.tbl_user as user_tbl

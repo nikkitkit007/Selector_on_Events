@@ -1,13 +1,13 @@
 
 import flask
 
-import config
+from _config import config
 import sys
 from services.checker import Checker
 
 from flask import Flask, request
 
-from logger_config import info_logger, error_logger
+from _config.logger_config import info_logger, error_logger
 
 from data_base.db_creator import DataBase
 from data_base.tbl_event import Event

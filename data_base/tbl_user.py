@@ -1,4 +1,4 @@
-import config
+from _config import config
 import sqlalchemy as sa
 
 from .base import Base, engine, session
@@ -6,7 +6,7 @@ from .base import Base, engine, session
 from .tbl_event import Event
 
 from datetime import datetime, timedelta
-from logger_config import info_logger, error_logger
+from _config.logger_config import info_logger, error_logger
 
 
 class User(Base):

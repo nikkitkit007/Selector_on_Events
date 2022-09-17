@@ -1,5 +1,4 @@
-
-import config
+from _config import config
 import sys
 from flask import Flask
 

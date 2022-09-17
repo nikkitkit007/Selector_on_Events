@@ -1,7 +1,6 @@
 import requests
-from datetime import datetime, timedelta
 
-import config
+from _config import config
 
 address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
 

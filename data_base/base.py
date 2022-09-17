@@ -2,10 +2,10 @@
 import typing
 from contextlib import contextmanager
 
-import config
+from _config import config
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import sessionmaker, scoped_session, Query, Mapper
+from sqlalchemy.orm import sessionmaker, Query, Mapper
 
 
 def _get_query_cls(mapper, _session):

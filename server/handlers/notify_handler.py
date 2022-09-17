@@ -1,11 +1,11 @@
 import flask
-from flask import Flask, request
+from flask import request
 
 from data_base.tbl_notify import Notify
 from data_base.tbl_user import User
 from typing import Tuple
 
-from logger_config import info_logger, error_logger
+from _config.logger_config import info_logger, error_logger
 
 
 class NotifyHandler:
