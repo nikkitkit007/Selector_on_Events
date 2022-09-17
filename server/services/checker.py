@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from _config import config
+from _config.logger_config import info_logger, error_logger
 import re
 from data_base.tbl_event import Event
 from data_base.tbl_user import User
@@ -46,37 +47,54 @@ class Checker:
             if user_ban <= datetime.now():
                 return False
             else:
-                return True                # user has ban
+                return True
         return False
 
     @staticmethod
-    def is_event_opened_for_want(event_id: int) -> bool:  # return true if event open for 'want'
+    def is_event_opened_for_want(event_id: int) -> bool:
+        """
+        Check that event in period time for registration.\n
+        :param event_id: int
+        :return: bool
+        """
         event = Event.get(event_id)
         time_now = datetime.now()
         if event:
-            if (dict(event)['time_start'] - time_now < days_before_event) & \
-                    (dict(event)['time_start'] - time_now > days_finish_registration):
+            if (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now < days_before_event) & \
+                    (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now > days_finish_registration):
                 return True
             return False
         else:
-            print('Event with id: ', event_id, ' does not exist!')
+            error_logger.error(f"Event with id:{event_id} does not exist!")
             return False
 
     @staticmethod
     def is_event_opened_for_go(event_id: int) -> bool:
-        """return true if event open for 'go'"""
+        """
+        If time before event allow ... stop!\n
+        I need delete this function\n
+        TODO : Delete me!\n
+        :param event_id: int
+        :return: bool
+        """
         event = Event.get(event_id)
         # print(dict(events[0]))
         time_now = datetime.now()
 
-        if (dict(event)['time_start'] - time_now < days_finish_registration) & \
-                (dict(event)['time_start'] - time_now > timedelta(1)):
+        if (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now < days_finish_registration) & \
+                (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now > timedelta(1)):
             return True
         return False
 
     @staticmethod
     def is_user_can_apply_event(user_id: int) -> bool:
-        # check user has time on apply
+        """
+        Check user has time on apply. User must have got notify.\n
+        Notify gives time on make choice.\n
+        When time_select_finish more than time_now, user can make choice.\n
+        :param user_id: int
+        :return: bool
+        """
         user_time_select_finish = User.get(user_id)['time_select_finish']
         time_now = datetime.now()
         if user_time_select_finish:
@@ -86,9 +104,8 @@ class Checker:
                 return False
         return False
 
-
     @staticmethod
-    def is_user_on_event_want(user_id: int, event_id: int) -> bool:         # want
+    def is_user_on_event_want(user_id: int, event_id: int) -> bool:
         event = Event.get(event_id)
         if event:
             users_want = dict(event)['users_id_want']
@@ -97,19 +114,22 @@ class Checker:
                     return True
             return False
         else:
-            print('Event with id: ', event_id, ' does not exist!')
             return False
 
     @staticmethod
     def is_user_on_event_go(user_id: int, event_id: int) -> bool:
+        """
+        Check user in event field 'users_id_go'.\n
+        :param user_id: int
+        :param event_id: int
+        :return: bool
+        """
         event = Event.get(event_id)
         if event:
             users_go = dict(event)['users_id_go']
-            if users_go:
-                if user_id in users_go:
-                    return True
+            if user_id in users_go:
+                return True
             return False
         else:
-            print('Event with id: ', event_id, ' does not exist!')
             return False
 

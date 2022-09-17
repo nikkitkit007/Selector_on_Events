@@ -58,6 +58,12 @@ class Event(Base):
 
     @staticmethod
     def get(event_id: int = 0, all_events: bool = False):
+        """
+        SELECT * FROM EVENT (WHERE event_id = event_id);\n
+        :param event_id: int
+        :param all_events: bool
+        :return: list with event or events
+        """
         with session(bind=engine) as local_session:
             if all_events:
                 events = local_session.query(Event).all()

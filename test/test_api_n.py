@@ -7,11 +7,12 @@ address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
 # ------------------------------TEST_USER------------------------------
 def test_user_add_correct():
     method = "/api/user/add"
+
     phone_num = '9117252325'
     mail_box = 'nikkitkit0707@mail.ru'
     vk_link = 'https://vk.com/n.sulimenko12'
 
-    test_user = {'user_isu_number': 288888,
+    test_user = {'user_isu_number': 222,
                  'user_name': 'Nik',
                  'user_surname': 'Sul',
                  'user_patronymic': 'Serg',
@@ -71,8 +72,8 @@ def test_user_delete(user_id: int = 1):
 def test_event_add():
     method = "/api/event/add"
 
-    time_start = '09-14-2022 00:00:00'
-    time_end = '09-15-2022 00:00:10'
+    time_start = '09-26-2022 00:00:00'
+    time_end = '09-27-2022 00:01:10'
     # time_end = 'fds'
 
     test_event = {'event_name': 'TEST_last... joke',
@@ -212,28 +213,25 @@ def test_news_delete(news_id: int = 1):
 
 # ------------------------TEST_EVENT_REGISTRATION------------------------
 
-def test_event_registration():
+def test_event_registration(user_id: int, event_id: int):
     method = "/api/event_registration"
-    event_id = 1
-    user_id = 1
 
     test_data_to_registration = {'event_id': event_id,
                                  'user_id': user_id}
 
     response = requests.post(address + method, json=test_data_to_registration)
-    print(response.content)
+    print(response.text, response.status_code)
     return response.status_code == 200
 
 
-def test_event_cancel_registration():
+def test_event_cancel_registration(user_id: int, event_id: int):
     method = "/api/event_cancel_registration"
-    event_id = 1
-    user_id = 1
 
     test_data_to_cancel_registration = {'event_id': event_id,
                                         'user_id': user_id}
 
     response = requests.post(address + method, json=test_data_to_cancel_registration)
+    print(response.text, response.status_code)
     return response.status_code == 200
 
 
@@ -270,7 +268,7 @@ def test_apply_event():
 
 # print(test_notify_add())
 
-# print(test_event_registration())
-# print(test_event_cancel_registration())
+# print(test_event_registration(user_id=7, event_id=13))
+print(test_event_cancel_registration(user_id=7, event_id=10))
 
 # print(test_apply_event())

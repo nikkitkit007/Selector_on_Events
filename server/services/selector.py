@@ -20,7 +20,7 @@ class Selector:
         event = event_tbl.Event.get(event_id)
         users_want = event["users_id_want"]
         users_go = event["users_id_go"]
-
+        selected_users = {}
         if users_want:
             if users_go:
                 people_count_to_select = event["people_count"] - event["users_is_go"].count()
@@ -34,17 +34,5 @@ class Selector:
             print(sorted_applicants)
             selected_users = dict(list(sorted_applicants.items())[:people_count_to_select])
             print('selected_users:', list(selected_users))
-            return list(selected_users)
-        return False
+        return list(selected_users)
 
-
-if __name__ == "__main__":
-    event_id_to_go = 1                        # откуда-то берем
-    notify_id = 1
-    if event_tbl.Event.get(event_id_to_go)['time_start'] <= config.TIME_TO_FIRST_APPLICANTS:
-        users_id_go = Selector.select_users_on_event(event_id_to_go)
-        for user in users_id_go:
-            user_tbl.User.update_add_notify(user, notify_id)
-            # every user get notify to accept or decline
-
-    users_id_go = Selector.select_users_on_event(event_id_to_go)

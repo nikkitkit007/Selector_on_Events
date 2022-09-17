@@ -24,7 +24,7 @@ class User(Base):
     score = sa.Column('score', sa.Integer)
     ban_date = sa.Column('ban_date', sa.TIMESTAMP)
     notify_id = sa.Column('notify_id', sa.ARRAY(sa.Integer), default={})
-    time_select_finish = sa.Column('time_select_finish', sa.TIMESTAMP)
+    time_select_finish = sa.Column('time_select_finish', sa.TIMESTAMP)      # TODO: Add default
 
     def __init__(self, user_data):
         self.user_isu_number = user_data['user_isu_number']
@@ -64,12 +64,16 @@ class User(Base):
 
     @staticmethod
     def get(user_id: int):
+        """
+        SELECT * from User WHERE user_id = user_id;\n
+        :param user_id: int
+        :return: list with user data
+        """
         with session(bind=engine) as local_session:
             user = local_session.query(User).filter(User.user_id == user_id).first()
             if user:
                 return user.get_dict()
             else:
-                info_logger.error(f'User {user_id} does not exist!')
                 return {}
 
     @staticmethod
@@ -101,7 +105,7 @@ class User(Base):
                 info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def update_add_notify(user_id: int, notify_id: int, time_now):
+    def update_add_notify(user_id: int, notify_id: int):
         with session(bind=engine) as local_session:
             user = local_session.query(User).filter(User.user_id == user_id).first()
             if user:
@@ -142,13 +146,14 @@ class User(Base):
                 info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def update_ban_date(user_id: int, ban_date):
+    def update_ban_date(user_id: int, ban_date: datetime):
         with session(bind=engine) as local_session:
             user = local_session.query(User).filter(User.user_id == user_id).first()
 
             if user:
                 user.ban_date = ban_date
                 local_session.commit()
+                info_logger.info(f"User {user_id} get ban until {ban_date}")
             else:
                 info_logger.error(f'User {user_id} does not exist!')
 
@@ -190,7 +195,7 @@ class User(Base):
         event = Event.get(event_id)
         time_now = datetime.now()
 
-        if time_now > event['time_start'] - timedelta(config.TIME_TO_BAN):
+        if time_now > (datetime.strptime(event['time_start'], "%m/%d/%Y, %H:%M:%S") - timedelta(config.TIME_TO_BAN)):
             User.update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
 
 
