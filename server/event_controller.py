@@ -2,15 +2,10 @@
 from services.selector import Selector
 from services.checker import Checker
 import services.notify as notify
-from datetime import datetime, timedelta
-import config
+from _config import config
 from time import sleep
 
 import data_base.tbl_event as event_tbl
-import data_base.tbl_user as user_tbl
-import data_base.tbl_notify as notify_tbl
-import data_base.tbl_news as news_tbl
-
 
 delay = config.TIME_TO_CHECK
 

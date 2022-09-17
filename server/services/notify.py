@@ -1,11 +1,9 @@
 from datetime import datetime, timedelta
-import config
+from _config import config
 # import data_base.db_worker as db
 
-import data_base.tbl_event as event_tbl
 import data_base.tbl_user as user_tbl
 import data_base.tbl_notify as notify_tbl
-import data_base.tbl_news as news_tbl
 
 
 def send_notifies(user_id: int, event_id: int):

@@ -1,8 +1,8 @@
-import config
+from _config import config
 import sqlalchemy as sa
 from .base import Base, session, engine
 
-from logger_config import info_logger, error_logger
+from _config.logger_config import info_logger
 
 
 class News(Base):

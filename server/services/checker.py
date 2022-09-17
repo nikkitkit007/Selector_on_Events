@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-import config
+from _config import config
 import re
 from data_base.tbl_event import Event
 from data_base.tbl_user import User

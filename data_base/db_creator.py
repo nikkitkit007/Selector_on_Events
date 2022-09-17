@@ -1,5 +1,4 @@
-import os
-import config
+from _config import config
 from sqlalchemy.schema import CreateSchema
 from .base import Base, engine
 
@@ -26,7 +25,3 @@ class DataBase:
             DataBase.create_schema()
         DataBase.create_all_tables()
 
-
-if __name__ == "__main__":
-    DataBase.create_db()
-    BASE_DIR = os.path.dirname(os.path.realpath(__file__))
