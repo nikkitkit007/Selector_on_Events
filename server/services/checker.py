@@ -32,9 +32,9 @@ class Checker:
     @staticmethod
     def is_event_active(event_id: int) -> bool:
         time_now = datetime.now()
-        event_time_start = Event.get(event_id)['time_start']
+        event_time_start = datetime.strptime(Event.get(event_id)['time_start'], "%m/%d/%Y, %H:%M:%S")
 
-        if time_now < event_time_start and (time_now > event_time_start - timedelta(config.TIME_TO_POST_EVENT)):
+        if time_now < event_time_start and (event_time_start - time_now >= timedelta(config.TIME_TO_POST_EVENT)):
             return True
         else:
             return False
@@ -132,4 +132,15 @@ class Checker:
             return False
         else:
             return False
+
+    @staticmethod
+    def is_any_free_places_event(event_id: int) -> bool:
+        event = Event.get(event_id)
+        users_id_go = event['users_id_go']
+        free_places = int(event['people_count']) - len(users_id_go)
+
+        if free_places > 0:
+            print("For event with ID:", event_id, "count of free places equal:", free_places)
+            return True
+        return False
 

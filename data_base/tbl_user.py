@@ -110,16 +110,16 @@ class User(Base):
             user = local_session.query(User).filter(User.user_id == user_id).first()
             if user:
                 cur_user_notify_id = list(user.notify_id)
+                if notify_id not in cur_user_notify_id:
+                    if cur_user_notify_id:
+                        cur_user_notify_id.append(notify_id)
+                        new_user_notify_id = set(cur_user_notify_id)
+                    else:
+                        new_user_notify_id = {notify_id}
 
-                if cur_user_notify_id:
-                    cur_user_notify_id.append(notify_id)
-                    new_user_notify_id = set(cur_user_notify_id)
-                else:
-                    new_user_notify_id = {notify_id}
-
-                user.time_select_finish = datetime.now() + timedelta(config.TIME_TO_ACCEPT)
-                user.notify_id = new_user_notify_id
-                local_session.commit()
+                    user.time_select_finish = datetime.now() + timedelta(config.TIME_TO_ACCEPT)
+                    user.notify_id = new_user_notify_id
+                    local_session.commit()
             else:
                 info_logger.error(f'User {user_id} does not exist!')
 
