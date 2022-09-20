@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from data_base.tbl_user import User
 import random
 
-# address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
-address = "http://127.0.0.1:80"
+address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
+# address = "http://127.0.0.1:80"
 
 
 # ------------------------------TEST_USER------------------------------
@@ -284,7 +284,7 @@ def test_base_functions(user_id: int = 1, event_id: int = 1, news_id: int = 1, n
     print(TestNews.news_update(news_id))
     print(TestNews.news_delete(news_id))
 
-    print(TestNotify.notify_add(notify_id))
+    print(TestNotify.notify_add(event_id))
 
 
 def generate_users(user_count: int):
@@ -311,11 +311,15 @@ def test_registrate(user_count: int, event_id: int):
 
 if __name__ == "__main__":
 
-    test_base_functions(user_id=2, event_id=2, notify_id=2, news_id=2)
+    # test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
     # generate_events(15)
     # generate_users(12)
-    # test_registrate(12, 10)
+    test_registrate(12, 14)
 
     # print(TestDecision.apply_event(event_id=10, user_id=3))
-    # print(TestDecision.decline_event(event_id=10, user_id=3))
+    # print(TestDecision.decline_event(event_id=10, user_id=2))
+    # print(TestUser.user_add_correct())
+    # print(TestEvent.event_add())
+    # print(TestEvent.event_get(3))
+
     pass

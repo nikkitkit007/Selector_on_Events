@@ -7,6 +7,8 @@ from typing import Tuple
 
 from _config.logger_config import info_logger, error_logger
 
+from data_base.base import Base, engine, session
+
 
 class NotifyHandler:
     @staticmethod
@@ -18,8 +20,9 @@ class NotifyHandler:
         :return: flask.Response("Notify added"), int(status_code)
         """
         try:
-            Notify.add(request.json)
-            info_logger.info(f"Notify with id: {int(request.json.get('notify_id'))} added.")
+            with session(bind=engine) as local_session:
+                Notify.add(request.json, local_session)
+            info_logger.info(f"Notify for event {request.json['event_id']} added.")
             return flask.make_response("Notify added"), 200
         except Exception as E:
             error_logger.error(E, request.json)
@@ -30,10 +33,11 @@ class NotifyHandler:
         # maybe I delete this API ! # TODO
         notifies = []
         try:
-            notifies_id = User.get(request.json.get('user_id'))['notify_id']  # user's notifies
+            with session(bind=engine) as local_session:
+                notifies_id = User.get(request.json.get('user_id'), local_session)['notify_id']  # user's notifies
 
-            for notify_id in notifies_id:
-                notifies.append(Notify.get(notify_id))  # list with notifies json
+                for notify_id in notifies_id:
+                    notifies.append(Notify.get(notify_id, local_session))  # list with notifies json
 
             return notifies
         except Exception as E:
@@ -47,7 +51,8 @@ class NotifyHandler:
         :return: flask.Response("Notify deleted"), int(status_code)
         """
         try:
-            Notify.delete(int(request.json.get('notify_id')))
+            with session(bind=engine) as local_session:
+                Notify.delete(int(request.json.get('notify_id')), local_session)
             info_logger.info(f"Notify with id: {int(request.json.get('notify_id'))} deleted.")
             return flask.make_response("Notify deleted"), 200
         except Exception as E:

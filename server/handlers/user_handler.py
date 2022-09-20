@@ -9,6 +9,8 @@ from server.services.checker import Checker
 
 from _config.logger_config import info_logger, error_logger
 
+from data_base.base import Base, engine, session
+
 
 class UserHandler:
     @staticmethod
@@ -24,7 +26,6 @@ class UserHandler:
                         'is_russian_citizenship': bool}
         :return: flask.Response("User added"), int(status_code)
         """
-        user_to_add = request.json
 
         if not Checker.is_correct_phone(request.json['phone']):
             error_logger.error("User add incorrect phone number")
@@ -33,7 +34,8 @@ class UserHandler:
             error_logger.error("User add incorrect mail")
             return flask.make_response({"error": "Wrong mail"}), 400
         try:
-            User.add(user_to_add)
+            with session(bind=engine) as local_session:
+                User.add(request.json, local_session)
             info_logger.info(f'User {request.json["user_name"]} added')
             return flask.make_response("User added"), 200
         except Exception as E:
@@ -47,7 +49,8 @@ class UserHandler:
         :return: flask.Response({"user": dict(user)}), int(status_code)
         """
         try:
-            user = User.get(request.json.get('user_id'))
+            with session(bind=engine) as local_session:
+                user = User.get(request.json.get('user_id'), local_session)
             return flask.make_response({"user": user}), 200
         except Exception as E:
             error_logger.error(E, request.json)
@@ -81,7 +84,8 @@ class UserHandler:
         :return: flask.Response("User data updated"), int(status_code)
         """
         try:
-            User.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'))
+            with session(bind=engine) as local_session:
+                User.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'), local_session)
             info_logger.info(f"User with id:{int(request.json['user_id'])} updated!")
             return flask.make_response("User data updated"), 200
         except Exception as E:
@@ -95,7 +99,8 @@ class UserHandler:
         :return: flask.Response("User deleted"), int(status_code)
         """
         try:
-            User.delete(int(request.json.get('user_id')))
+            with session(bind=engine) as local_session:
+                User.delete(int(request.json.get('user_id')), local_session)
             info_logger.info(f"User with id: {int(request.json.get('user_id'))} deleted.")
             return flask.make_response("OK"), 200
         except Exception as E:

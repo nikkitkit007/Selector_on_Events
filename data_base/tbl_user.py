@@ -57,146 +57,130 @@ class User(Base):
         return atts_dict
 
     @staticmethod
-    def add(user_to_add: dict):
-        with session(bind=engine) as local_session:
-            local_session.add(User(user_to_add))
-            local_session.commit()
+    def add(user_to_add: dict, local_session: session):
+        local_session.add(User(user_to_add))
 
     @staticmethod
-    def get(user_id: int):
+    def get(user_id: int, local_session: session):
         """
         SELECT * from User WHERE user_id = user_id;\n
+        :param local_session: session
         :param user_id: int
         :return: list with user data
         """
-        with session(bind=engine) as local_session:
-            user = local_session.query(User).filter(User.user_id == user_id).first()
-            if user:
-                return user.get_dict()
-            else:
-                return {}
+        user = local_session.query(User).filter(User.user_id == user_id).first()
+        if user:
+            return user.get_dict()
+        else:
+            return {}
 
     @staticmethod
-    def update(user_id: int, user_data_to_update: dict):
-        with session(bind=engine) as local_session:
-            user_to_update = local_session.query(User).filter(User.user_id == user_id).first()
+    def update(user_id: int, user_data_to_update: dict, local_session: session):
+        user_to_update = local_session.query(User).filter(User.user_id == user_id).first()
 
-            if user_to_update:
-                user_to_update.user_name = str(user_data_to_update["user_name"])
-                user_to_update.user_surname = str(user_data_to_update["user_surname"])
-                user_to_update.user_patronymic = str(user_data_to_update["user_patronymic"])
-                user_to_update.phone = str(user_data_to_update["phone"])
-                user_to_update.vk_link = str(user_data_to_update["vk_link"])
-                user_to_update.mail = str(user_data_to_update["mail"])
-                user_to_update.is_russian_citizenship = bool(user_data_to_update['is_russian_citizenship'])
+        if user_to_update:
+            user_to_update.user_name = str(user_data_to_update["user_name"])
+            user_to_update.user_surname = str(user_data_to_update["user_surname"])
+            user_to_update.user_patronymic = str(user_data_to_update["user_patronymic"])
+            user_to_update.phone = str(user_data_to_update["phone"])
+            user_to_update.vk_link = str(user_data_to_update["vk_link"])
+            user_to_update.mail = str(user_data_to_update["mail"])
+            user_to_update.is_russian_citizenship = bool(user_data_to_update['is_russian_citizenship'])
 
-                local_session.commit()
-            else:
-                info_logger.error(f'User {user_id} does not exist!')
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def delete(user_id: int):
-        with session(bind=engine) as local_session:
-            user_to_delete = local_session.query(User).filter(User.user_id == user_id).first()
-            if user_to_delete:
-                local_session.delete(user_to_delete)
-                local_session.commit()
-            else:
-                info_logger.error(f'User {user_id} does not exist!')
+    def delete(user_id: int, local_session: session):
+        user_to_delete = local_session.query(User).filter(User.user_id == user_id).first()
+        if user_to_delete:
+            local_session.delete(user_to_delete)
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def update_add_notify(user_id: int, notify_id: int):
-        with session(bind=engine) as local_session:
-            user = local_session.query(User).filter(User.user_id == user_id).first()
-            if user:
-                cur_user_notify_id = list(user.notify_id)
-                if notify_id not in cur_user_notify_id:
-                    if cur_user_notify_id:
-                        cur_user_notify_id.append(notify_id)
-                        new_user_notify_id = set(cur_user_notify_id)
-                    else:
-                        new_user_notify_id = {notify_id}
-
-                    user.time_select_finish = datetime.now() + timedelta(config.TIME_TO_ACCEPT)
-                    user.notify_id = new_user_notify_id
-                    local_session.commit()
-            else:
-                info_logger.error(f'User {user_id} does not exist!')
-
-    @staticmethod
-    def update_del_notify(user_id: int, notify_id: int):
-        with session(bind=engine) as local_session:
-            user = local_session.query(User).filter(User.user_id == user_id).first()
-            if user:
-                cur_user_notify_id = user.notify_id
-                try:
-                    cur_user_notify_id.remove(notify_id)
-                except Exception as E:
-                    error_logger.error(E)
-                    info_logger.error(f'Notify_id {notify_id} does not exist to user {user_id}!')
-
+    def update_add_notify(user_id: int, notify_id: int, local_session: session):
+        user = local_session.query(User).filter(User.user_id == user_id).first()
+        if user:
+            cur_user_notify_id = list(user.notify_id)
+            if notify_id not in cur_user_notify_id:
                 if cur_user_notify_id:
+                    cur_user_notify_id.append(notify_id)
                     new_user_notify_id = set(cur_user_notify_id)
                 else:
-                    new_user_notify_id = []
+                    new_user_notify_id = {notify_id}
 
+                user.time_select_finish = datetime.now() + timedelta(config.TIME_TO_ACCEPT)
                 user.notify_id = new_user_notify_id
-                local_session.commit()
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
+
+    @staticmethod
+    def update_del_notify(user_id: int, notify_id: int, local_session: session):
+        user = local_session.query(User).filter(User.user_id == user_id).first()
+        if user:
+            cur_user_notify_id = user.notify_id
+            try:
+                cur_user_notify_id.remove(notify_id)
+            except Exception as E:
+                error_logger.error(E)
+                info_logger.error(f'Notify_id {notify_id} does not exist to user {user_id}!')
+
+            if cur_user_notify_id:
+                new_user_notify_id = set(cur_user_notify_id)
             else:
-                info_logger.error(f'User {user_id} does not exist!')
+                new_user_notify_id = []
+
+            user.notify_id = new_user_notify_id
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def update_ban_date(user_id: int, ban_date: datetime):
-        with session(bind=engine) as local_session:
-            user = local_session.query(User).filter(User.user_id == user_id).first()
+    def update_ban_date(user_id: int, ban_date: datetime, local_session: session):
+        user = local_session.query(User).filter(User.user_id == user_id).first()
 
-            if user:
-                user.ban_date = ban_date
-                local_session.commit()
-                info_logger.info(f"User {user_id} get ban until {ban_date}")
-            else:
-                info_logger.error(f'User {user_id} does not exist!')
+        if user:
+            user.ban_date = ban_date
+            info_logger.info(f"User {user_id} get ban until {ban_date}")
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def update_add_score(user_id: int, score: int):
-        with session(bind=engine) as local_session:
-            user = local_session.query(User).filter(User.user_id == user_id).first()
+    def update_add_score(user_id: int, score: int, local_session):
+        user = local_session.query(User).filter(User.user_id == user_id).first()
 
-            if user:
-                user.score += score
+        if user:
+            user.score += score
 
-                local_session.commit()
-            else:
-                info_logger.error(f'User {user_id} does not exist!')
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def update_del_timer(user_id: int):
-        with session(bind=engine) as local_session:
-            user = local_session.query(User).filter(User.user_id == user_id).first()
+    def update_del_timer(user_id: int, local_session: session):
+        user = local_session.query(User).filter(User.user_id == user_id).first()
 
-            if user:
-                user.time_select_finish = None
-                local_session.commit()
-            else:
-                info_logger.error(f'User {user_id} does not exist!')
+        if user:
+            user.time_select_finish = None
+        else:
+            info_logger.error(f'User {user_id} does not exist!')
 
     @staticmethod
-    def apply_event(user_id: int, event_id: int):
-        Event.update_add_users_id_go(event_id, user_id)
-        Event.update_del_users_id_want(event_id, user_id)
+    def apply_event(user_id: int, event_id: int, local_session: session):
+        Event.update_add_users_id_go(event_id, user_id, local_session)
+        Event.update_del_users_id_want(event_id, user_id, local_session)
 
-        User.update_add_score(user_id, Event.get(event_id)['coefficient'])
+        User.update_add_score(user_id, Event.get(event_id)['coefficient'], local_session)
 
-        User.update_del_timer(user_id)
+        User.update_del_timer(user_id, local_session)
 
     @staticmethod
-    def decline_event(user_id: int, event_id: int):
-        Event.update_del_users_id_go(event_id, user_id)
-        event = Event.get(event_id)
+    def decline_event(user_id: int, event_id: int, local_session: session):
+        Event.update_del_users_id_go(event_id, user_id, local_session)
+        event = Event.get(event_id, local_session)
         time_now = datetime.now()
 
         if time_now > (datetime.strptime(event['time_start'], "%m/%d/%Y, %H:%M:%S") - timedelta(config.TIME_TO_BAN)):
-            User.update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE))
+            User.update_ban_date(user_id, time_now + timedelta(config.BAN_TIME_LATE), local_session)
 
 
 if __name__ == "__main__":

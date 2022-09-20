@@ -1,23 +1,23 @@
 from _config import config
 
-import data_base.tbl_event as event_tbl
-import data_base.tbl_user as user_tbl
-# import data_base.notify_tbl as notify_tbl
-# import data_base.news_tbl as news_tbl
+from data_base.tbl_event import Event
+from data_base.tbl_user import User
+
+from data_base.base import Base, engine, session
 
 
 class Selector:
 
     @staticmethod
-    def get_user_score(users_ids: list):
+    def get_user_score(users_ids: list, local_session: session):
         users_score = {}
         for user_id in users_ids:
-            users_score[user_id] = user_tbl.User.get(int(user_id))['score']
+            users_score[user_id] = User.get(user_id, local_session)['score']
         return users_score
 
     @staticmethod
-    def select_users_on_event(event_id: int):
-        event = event_tbl.Event.get(event_id)
+    def select_users_on_event(event_id: int, local_session: session):
+        event = Event.get(local_session, event_id)
         users_want = event["users_id_want"]
         users_go = event["users_id_go"]
         selected_users = {}
@@ -28,7 +28,7 @@ class Selector:
             else:
                 people_count_to_select = event["people_count"]
 
-            users_want_with_score = Selector.get_user_score(users_want)
+            users_want_with_score = Selector.get_user_score(users_want, local_session)
 
             sorted_applicants = dict(sorted(users_want_with_score.items(), key=lambda x: x[1]))
             print(sorted_applicants)
