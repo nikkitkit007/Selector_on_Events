@@ -11,6 +11,20 @@ from _config.logger_config import info_logger, error_logger
 
 from data_base.base import Base, engine, session
 
+# ---
+# /api/user/add:
+#   post:
+#     tags:
+#       - User
+#     parameters:
+#       - in: query
+#         description: "Data"
+#     responses:
+#       '200':
+#         description: "User added"
+#       '400':
+#         description: "User not added"
+
 
 class UserHandler:
     @staticmethod

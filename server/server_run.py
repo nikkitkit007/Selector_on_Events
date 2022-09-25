@@ -1,6 +1,6 @@
 from _config import config
 import sys
-from flask import Flask
+from flask import Flask, json
 
 from data_base.db_creator import DataBase
 
@@ -9,6 +9,7 @@ from handlers.event_handler import EventHandler
 from handlers.notify_handler import NotifyHandler
 from handlers.news_handler import NewsHandler
 from handlers.decision_handler import DecisionHandler
+
 
 app = Flask(__name__)
 sys.path.append('../')
@@ -58,6 +59,7 @@ if __name__ == '__main__':
     DataBase.create_db()
 
     api_add_url()
+
     app.run(host=config.HOST_ADDRESS, port=config.HOST_PORT)
     # TODO: ADD DEMON TREAD WITH event_controller
 

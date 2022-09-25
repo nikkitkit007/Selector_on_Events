@@ -9,12 +9,12 @@ class Event(Base):
 
     event_id = sa.Column('event_id', sa.Integer, primary_key=True)
     event_name = sa.Column('event_name', sa.String(127), nullable=False)
-    time_start = sa.Column('time_start', sa.TIMESTAMP)
-    time_end = sa.Column('time_end', sa.TIMESTAMP)
+    time_start = sa.Column('time_start', sa.TIMESTAMP, nullable=False)
+    time_end = sa.Column('time_end', sa.TIMESTAMP, nullable=False)
     description = sa.Column('description', sa.String)
     url_pdf = sa.Column('url_pdf', sa.String(255))
-    people_count = sa.Column('people_count', sa.Integer)
-    coefficient = sa.Column('coefficient', sa.String)
+    people_count = sa.Column('people_count', sa.Integer, nullable=False)
+    coefficient = sa.Column('coefficient', sa.String, default=1)
     users_id_want = sa.Column('users_id_want', sa.ARRAY(sa.Integer),
                               default={})
     users_id_go = sa.Column('users_id_go', sa.ARRAY(sa.Integer),
