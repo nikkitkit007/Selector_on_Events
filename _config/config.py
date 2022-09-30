@@ -1,20 +1,30 @@
+import os
+# ------ uncomment this if local -------
 
-HOST_ADDRESS = "127.0.0.1"
-HOST_PORT = "5000"
+from dotenv import load_dotenv
+dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+
+
+HOST_ADDRESS = os.getenv("HOST_ADDRESS")
+HOST_PORT = os.getenv("HOST_PORT")
 
 # ------------------------
-DATABASE = "postgres"
-USERNAME = "postgres"
-PASSWORD = "1234"
-HOST = "127.0.0.1"
-PORT = "5435"
+DATABASE = os.getenv("DATABASE")
+# USERNAME = "postgres"
+USERNAME = os.getenv("USERNAME")
+PASSWORD = os.getenv("PASSWORD")
+HOST = os.getenv("HOST")
+# HOST = "127.0.0.1"
+PORT = os.getenv("PORT")
 
 # ------------------------
-SCHEMA_NAME = "ITMO_Event"
-TBL_EVENTS = "Event"
-TBL_USERS = "User"
-TBL_NOTIFIES = "Notify"
-TBL_NEWS = "News"
+SCHEMA_NAME = os.getenv("SCHEMA_NAME")
+TBL_EVENTS = os.getenv("TBL_EVENTS")
+TBL_USERS = os.getenv("TBL_USERS")
+TBL_NOTIFIES = os.getenv("TBL_NOTIFIES")
+TBL_NEWS = os.getenv("TBL_NEWS")
 
 # ------------------------
 TIME_TO_POST_EVENT = 10

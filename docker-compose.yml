@@ -6,17 +6,23 @@ services:
     hostname: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
-    environment:
-      - PGUSER=postgres
-      - PGPASSWORD=postgres
-      - PGDATABASE=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+#    environment:
+#      - DATABASE=postgres
+#      - USERNAME=postgres
+#      - PASSWORD=postgres
+#      - HOST=127.0.0.1
 
+#     command: python data_base/__main__.py
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
     networks:
       - backend
+#        ipv4_address: 172.16.238.20
+#        ipv6_address: 2001:3984:3989::20
     restart: always
+
   web:
     build: .
     ports:
@@ -25,18 +31,25 @@ services:
       - db
     networks:
       - backend
+    links:
+      - db
+    env_file:
+      - .env
     restart: always
-    command:
-      - "./gunicorn.sh"
+    command: bash ./gunicorn.sh
+
   controller:
+    env_file:
+      - .env
     build: .
     depends_on:
       - db
     networks:
       - backend
+    links:
+      - db
     restart: always
-#    command:
-#      - CMD ["python", "/server/event_controller.py"]
+    command: python server/event_controller.py
 
 networks:
   backend:

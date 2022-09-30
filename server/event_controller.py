@@ -1,6 +1,4 @@
 from services.checker import Checker
-import services.notify as notify
-from _config import config
 from time import sleep
 
 from data_base.tbl_event import Event
@@ -9,7 +7,9 @@ from data_base.tbl_event import Event
 from services.selector import Selector
 from services.notify import NotifySender
 
-from data_base.base import Base, engine, session
+from data_base.base import engine, session
+
+from _config import config
 
 delay = config.TIME_TO_CHECK
 
@@ -37,9 +37,8 @@ class EventController:
                                 for user_id in users_id_go:
                                     NotifySender.send_notifies(user_id, event_id, local_session)
 
-            sleep(delay)  # 6 hours
+            sleep(10)  # 6 hours
 
 
 if __name__ == "__main__":
     EventController.control_event()
-    pass

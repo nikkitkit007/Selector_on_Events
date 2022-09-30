@@ -1,11 +1,13 @@
 from datetime import datetime, timedelta
+import sys
+sys.path.append('/usr/src/app/')
 from _config import config
 from _config.logger_config import info_logger, error_logger
 import re
 from data_base.tbl_event import Event
 from data_base.tbl_user import User
 
-from data_base.base import Base, engine, session
+from data_base.base import session
 
 days_before_event = timedelta(config.TIME_TO_POST_EVENT)
 days_finish_registration = timedelta(config.TIME_TO_END_TAKE_PART)
