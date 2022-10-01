@@ -22,7 +22,7 @@ def index():
 def api_add_url():
     # ----------------------------------USER-----------------------------------
     app.add_url_rule("/api/user/add", view_func=UserHandler.user_add, methods=["POST"])
-    app.add_url_rule("/api/user/get_profile", view_func=UserHandler.user_get_profile, methods=["GET"])
+    app.add_url_rule("/api/user/get", view_func=UserHandler.user_get_profile, methods=["GET"])
     app.add_url_rule("/api/user/update", view_func=UserHandler.user_update, methods=["POST"])
     app.add_url_rule("/api/user/delete", view_func=UserHandler.user_delete, methods=["DELETE"])
 
@@ -58,7 +58,7 @@ api_add_url()
 
 
 if __name__ == '__main__':
-    DataBase.create_db()
+    DataBase.create_db()                # docker-compose exec web python server_run.py
 
     # api_add_url()
     #

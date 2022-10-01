@@ -68,7 +68,7 @@ class EventHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                events = Event.get(local_session=local_session, event_id=int(request.json.get('event_id', 0))
+                events = Event.get(local_session=local_session, event_id=int(request.args.get('event_id', 0))
                                    , all_events=False)
             return (flask.make_response({"event": events}), 200) if events \
                 else (flask.make_response({"error": "Not events"}), 400)

@@ -35,7 +35,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                news = News.get(local_session, news_id=(request.json.get('news_id', 0)), all_news=False)
+                news = News.get(local_session, news_id=(request.args.get('news_id', 0)), all_news=False)
             return (flask.make_response({"news": news}), 200) if news \
                 else (flask.make_response({"error": "Not news"}), 400)
         except Exception as E:

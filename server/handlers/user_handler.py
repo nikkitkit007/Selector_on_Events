@@ -64,7 +64,7 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                user = User.get(request.json.get('user_id'), local_session)
+                user = User.get(int(request.args.get('user_id')), local_session)
             return flask.make_response({"user": user}), 200
         except Exception as E:
             error_logger.error(E, request.json)
@@ -73,7 +73,7 @@ class UserHandler:
     @staticmethod
     # @app.route('/api/user/get_history', methods=["GET"])  # feature
     def user_get_history():
-        user_id = request.json
+        user_id = request.json.args()
 
         try:
             pass

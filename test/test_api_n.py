@@ -32,11 +32,11 @@ class TestUser:
 
     @staticmethod
     def user_get_profile(user_id: int = 1):
-        method = "/api/user/get_profile"
+        method = "/api/user/get"
 
         user_id = {'user_id': user_id}
 
-        response = requests.get(address + method, json=user_id)
+        response = requests.get(address + method, params=user_id)
         print(response.content)
         return response.status_code == 200
 
@@ -98,7 +98,7 @@ class TestEvent:
 
         event_id = {"event_id": event_id}
 
-        response = requests.get(address + method, json=event_id)
+        response = requests.get(address + method, params=event_id)
         print(response.content)
         return response.status_code == 200
 
@@ -179,7 +179,7 @@ class TestNews:
 
         news_id = {'news_id': news_id}
 
-        response = requests.get(address + method, json=news_id)
+        response = requests.get(address + method, params=news_id)
         print(response.content)
         return response.status_code == 200
 
@@ -310,7 +310,7 @@ def test_registrate(user_count: int, event_id: int):
 
 
 if __name__ == "__main__":
-
+    # TestEvent.event_get(3)
     test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
     # generate_events(15)
     # generate_users(12)
