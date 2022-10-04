@@ -116,7 +116,7 @@ class TestEvent:
 
         event_name_update = 'TEST_update_really>!'
         data_update = {'event_id': event_id,
-                       'data_to_update':
+                       'event_data_to_update':
                            {
                                'event_name': event_name_update,
                                'time_start': '09-08-2022 00:00:00',
@@ -311,12 +311,12 @@ def test_registrate(user_count: int, event_id: int):
 
 if __name__ == "__main__":
     # TestEvent.event_get(3)
-    test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
+    # test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
     # generate_events(15)
     # generate_users(12)
-    # test_registrate(12, 14)
+    # test_registrate(5, 11)
 
-    # print(TestDecision.apply_event(event_id=10, user_id=3))
+    # print(TestDecision.apply_event(event_id=11, user_id=2))
     # print(TestDecision.decline_event(event_id=10, user_id=2))
     # print(TestUser.user_add_correct())
     # print(TestEvent.event_add())

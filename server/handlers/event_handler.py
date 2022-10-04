@@ -53,7 +53,7 @@ class EventHandler:
             """
         try:
             with session(bind=engine) as local_session:
-                Event.update(int(request.json['event_id']), request.json['data_to_update'], local_session)
+                Event.update(int(request.json['event_id']), request.json['event_data_to_update'], local_session)
             info_logger.info(f"Event with id:{int(request.json['event_id'])} updated!")
             return flask.make_response("200"), 200
         except Exception as E:
