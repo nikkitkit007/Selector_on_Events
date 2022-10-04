@@ -55,16 +55,15 @@ def api_add_url():
 
 
 api_add_url()
+# DataBase.create_db()
 
+if __name__ == '__main__':              # when I use docker-compose this part doesn't run
+    DataBase.create_db()
 
-if __name__ == '__main__':
-    DataBase.create_db()                # docker-compose exec web python server_run.py
+    api_add_url()
 
-    # api_add_url()
-    #
     # app.run(host=config.HOST_ADDRESS, port=config.HOST_PORT)
-
-    # TODO: ADD DEMON TREAD WITH event_controller
+    pass
 
 # CRUD
 # 1) Create POST
