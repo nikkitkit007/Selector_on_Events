@@ -1,11 +1,12 @@
 from datetime import datetime, timedelta
 import sys
-sys.path.append('/usr/src/app/')
-from _config import config
-from _config.logger_config import info_logger, error_logger
 import re
-from data_base.tbl_event import Event
-from data_base.tbl_user import User
+
+sys.path.append('/usr/src/app/')
+from configurations import config
+from configurations.logger_config import info_logger, error_logger
+from data_base.models.tbl_event import Event
+from data_base.models.tbl_user import User
 
 from data_base.base import session
 
@@ -69,7 +70,8 @@ class Checker:
         time_now = datetime.now()
         if event:
             if (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now < days_before_event) & \
-                    (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now > days_finish_registration):
+                    (datetime.strptime(dict(event)['time_start'],
+                                       "%m/%d/%Y, %H:%M:%S") - time_now > days_finish_registration):
                 return True
             return False
         else:
@@ -157,4 +159,3 @@ class Checker:
             print("For event with ID:", event_id, "count of free places equal:", free_places)
             return True
         return False
-

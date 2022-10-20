@@ -1,7 +1,7 @@
 from services.checker import Checker
 from time import sleep
 
-from data_base.tbl_event import Event
+from data_base.models.tbl_event import Event
 
 # from datetime import datetime
 from services.selector import Selector
@@ -9,7 +9,7 @@ from services.notify import NotifySender
 
 from data_base.base import engine, session
 
-from _config import config
+from configurations import config
 
 delay = config.TIME_TO_CHECK
 

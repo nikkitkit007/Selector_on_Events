@@ -5,12 +5,12 @@
 
 # https://questu.ru/questions/31796332/ - really cool
 
-from _config import config
+from configurations import config
 import psycopg2
 import psycopg2.extras
 from datetime import datetime
 import logging
-from _config.logger_config import LOGGING_CONFIG
+from configurations.logger_config import LOGGING_CONFIG
 
 logging.config.dictConfig(LOGGING_CONFIG)
 info_logger = logging.getLogger('info_logger')

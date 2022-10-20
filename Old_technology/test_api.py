@@ -1,6 +1,6 @@
 import requests
 
-from _config import config
+from configurations import config
 
 address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
 

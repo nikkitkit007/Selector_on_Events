@@ -1,7 +1,7 @@
 import requests
-from _config import config
+from configurations import config
 from datetime import datetime, timedelta
-from data_base.tbl_user import User
+from data_base.models.tbl_user import User
 import random
 
 # address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT

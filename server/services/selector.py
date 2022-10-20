@@ -1,7 +1,7 @@
-from _config import config
+from configurations import config
 
-from data_base.tbl_event import Event
-from data_base.tbl_user import User
+from data_base.models.tbl_event import Event
+from data_base.models.tbl_user import User
 
 from data_base.base import Base, engine, session
 

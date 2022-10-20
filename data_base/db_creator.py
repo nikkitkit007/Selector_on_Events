@@ -1,4 +1,4 @@
-from _config import config
+from configurations import config
 from sqlalchemy.schema import CreateSchema
 from .base import Base, engine
 

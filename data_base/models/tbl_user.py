@@ -1,12 +1,12 @@
-from _config import config
+from configurations import config
 import sqlalchemy as sa
 
-from .base import Base, engine, session
+from data_base.base import Base, engine, session
 
 from .tbl_event import Event
 
 from datetime import datetime, timedelta
-from _config.logger_config import info_logger, error_logger
+from configurations.logger_config import info_logger, error_logger
 
 
 class User(Base):
@@ -26,7 +26,7 @@ class User(Base):
     notify_id = sa.Column('notify_id', sa.ARRAY(sa.Integer), default={})
     time_select_finish = sa.Column('time_select_finish', sa.TIMESTAMP)      # TODO: Add default
 
-    def __init__(self, user_data):
+    def __init__(self, user_data: dict):
         self.user_isu_number = user_data['user_isu_number']
         self.user_name = user_data['user_name']
         self.user_surname = user_data['user_surname']

@@ -1,10 +1,10 @@
 import flask
 from flask import request
 
-from data_base.tbl_news import News
+from data_base.models.tbl_news import News
 from typing import Tuple
 
-from _config.logger_config import info_logger, error_logger
+from configurations.logger_config import info_logger, error_logger
 
 from data_base.base import Base, engine, session
 

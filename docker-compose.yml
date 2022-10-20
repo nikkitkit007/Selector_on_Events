@@ -2,45 +2,48 @@ version: "3.9"
 
 services:
   db:
+    container_name: db_events
     image: postgres:14.0-alpine
     hostname: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
-    env_file:
-      - .env
+    environment:
+      - POSTGRES_DB=ITMO_Event
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - "5432:5432"
+      - "5435:5432"
     networks:
       - backend
     restart: always
 
-  web:
-    build: .
-    ports:
-      - "80:80"
-    depends_on:
-      - db
-    networks:
-      - backend
-    links:
-      - db
-    env_file:
-      - .env
-    restart: always
-    command: bash ./gunicorn.sh
-
-  controller:
-    env_file:
-      - .env
-    build: .
-    depends_on:
-      - db
-    networks:
-      - backend
-    links:
-      - db
-    restart: always
-    command: python server/event_controller.py
+#  web:
+#    build: .
+#    ports:
+#      - "80:80"
+#    depends_on:
+#      - db
+#    networks:
+#      - backend
+#    links:
+#      - db
+#    env_file:
+#      - .env
+#    restart: always
+#    command: bash ./gunicorn.sh
+#
+#  controller:
+#    env_file:
+#      - .env
+#    build: .
+#    depends_on:
+#      - db
+#    networks:
+#      - backend
+#    links:
+#      - db
+#    restart: always
+#    command: python server/event_controller.py
 
 networks:
   backend:

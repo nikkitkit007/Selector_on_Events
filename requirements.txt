@@ -11,3 +11,6 @@ gevent
 psycopg2==2.9.3
 requests==2.28.1
 python-dotenv==0.21
+alembic~=1.8.1
+config~=0.5.1
+pydantic~=1.10.2

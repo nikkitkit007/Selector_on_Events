@@ -2,7 +2,7 @@
 import typing
 from contextlib import contextmanager
 
-from _config import config
+from configurations import config
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import sessionmaker, Query, Mapper

@@ -19,6 +19,8 @@ HOST = os.getenv("HOST")
 # HOST = "127.0.0.1"
 PORT = os.getenv("PORT")
 
+DATABASE_URL = 1
+
 # ------------------------
 SCHEMA_NAME = os.getenv("SCHEMA_NAME")
 TBL_EVENTS = os.getenv("TBL_EVENTS")

@@ -1,11 +1,11 @@
 import flask
 from flask import request
 
-from data_base.tbl_notify import Notify
-from data_base.tbl_user import User
+from data_base.models.tbl_notify import Notify
+from data_base.models.tbl_user import User
 from typing import Tuple
 
-from _config.logger_config import info_logger, error_logger
+from configurations.logger_config import info_logger, error_logger
 
 from data_base.base import Base, engine, session
 

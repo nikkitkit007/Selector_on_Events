@@ -2,17 +2,17 @@
 import sys
 
 import flask
-from _config import config
+from configurations import config
 import server.services.selector as selector
 import server.services.checker as checker
 from flask import Flask, request
 
-from _config.logger_config import info_logger, error_logger
+from configurations.logger_config import info_logger, error_logger
 
 from data_base.db_creator import create_db
-import data_base.tbl_event as event_tbl
-import data_base.tbl_user as user_tbl
-import data_base.tbl_notify as notify_tbl
+import data_base.models.tbl_event as event_tbl
+import data_base.models.tbl_user as user_tbl
+import data_base.models.tbl_notify as notify_tbl
 
 app = Flask(__name__)
 sys.path.append('../')

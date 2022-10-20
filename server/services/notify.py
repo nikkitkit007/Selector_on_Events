@@ -1,9 +1,9 @@
 from datetime import datetime, timedelta
-from _config import config
+from configurations import config
 # import data_base.db_worker as db
 
-from data_base.tbl_user import User
-from data_base.tbl_notify import Notify
+from data_base.models.tbl_user import User
+from data_base.models.tbl_notify import Notify
 from data_base.base import Base, session, engine
 
 

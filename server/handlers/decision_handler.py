@@ -1,13 +1,13 @@
 import flask
 from flask import request
 
-from data_base.tbl_event import Event
-from data_base.tbl_user import User
+from data_base.models.tbl_event import Event
+from data_base.models.tbl_user import User
 from typing import Tuple
 
 from server.services.checker import Checker
 
-from _config.logger_config import info_logger, error_logger
+from configurations.logger_config import info_logger, error_logger
 from data_base.base import Base, engine, session
 
 

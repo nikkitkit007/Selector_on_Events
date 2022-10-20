@@ -1,19 +1,19 @@
 
 import flask
 
-from _config import config
+from configurations import config
 import sys
 from services.checker import Checker
 
 from flask import Flask, request
 
-from _config.logger_config import info_logger, error_logger
+from configurations.logger_config import info_logger, error_logger
 
 from data_base.db_creator import DataBase
-from data_base.tbl_event import Event
-from data_base.tbl_user import User
-from data_base.tbl_notify import Notify
-from data_base.tbl_news import News
+from data_base.models.tbl_event import Event
+from data_base.models.tbl_user import User
+from data_base.models.tbl_notify import Notify
+from data_base.models.tbl_news import News
 
 from typing import Tuple
 
