@@ -1,2 +1,3 @@
 #!/bin/sh
-gunicorn --chdir server server_run:app -w 2 --worker-class gevent --threads 2 -b 0.0.0.0:80
+gunicorn --bind 0.0.0.0:8080 wsgi:app
+#gunicorn --chdir server '__main__':app -w 2 --worker-class gevent --threads 2 -b 0.0.0.0:8080

@@ -7,22 +7,17 @@ if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
 
 
-HOST_ADDRESS = os.getenv("HOST_ADDRESS")
-HOST_PORT = os.getenv("HOST_PORT")
+APP_HOST = os.getenv("APP_HOST")
+APP_PORT = os.getenv("APP_PORT")
 
 # ------------------------
-DATABASE = os.getenv("DATABASE")
-# USERNAME = "postgres"
-USERNAME = os.getenv("USERNAME")
-PASSWORD = os.getenv("PASSWORD")
-HOST = os.getenv("HOST")
-# HOST = "127.0.0.1"
-PORT = os.getenv("PORT")
-
-DATABASE_URL = 1
+POSTGRES_DB = os.getenv("POSTGRES_DB")
+POSTGRES_USER = os.getenv("POSTGRES_USER")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT")
 
 # ------------------------
-SCHEMA_NAME = os.getenv("SCHEMA_NAME")
 TBL_EVENTS = os.getenv("TBL_EVENTS")
 TBL_USERS = os.getenv("TBL_USERS")
 TBL_NOTIFIES = os.getenv("TBL_NOTIFIES")

@@ -8,43 +8,47 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    expose:
+      - "5435"
     ports:
-      - "5435:5432"
-    networks:
-      - backend
+      - "5435:5435"
     restart: always
 
-#  web:
-#    build: .
-#    ports:
-#      - "80:80"
-#    depends_on:
-#      - db
-#    networks:
-#      - backend
-#    links:
-#      - db
+  web:
+    container_name: web
+    build: .
+    ports:
+      - "8080:8080"
+    expose:
+      - "8080"
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
 #    env_file:
 #      - .env
-#    restart: always
-#    command: bash ./gunicorn.sh
+    restart: always
+    command: bash ./gunicorn.sh
 
 #  controller:
-#    env_file:
-#      - .env
+#    container_name: event_controller
+#    #    env_file:
+##      - .env
 #    build: .
-#    depends_on:
-#      - db
-#    networks:
-#      - backend
+#    environment:
+#      - DB_SERVER=kanban-postgres
+##    depends_on:
+##      - db
 #    links:
 #      - db
 #    restart: always
 #    command: python server/event_controller.py
-
-networks:
-  backend:
-    driver: bridge

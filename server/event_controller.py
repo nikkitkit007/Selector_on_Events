@@ -3,7 +3,6 @@ from time import sleep
 
 from data_base.models.tbl_event import Event
 
-# from datetime import datetime
 from services.selector import Selector
 from services.notify import NotifySender
 

@@ -24,19 +24,13 @@ def _get_query_cls(mapper, _session):
 
 
 Session = sessionmaker(query_cls=_get_query_cls)
-# engine = create_engine(f"postgresql+psycopg2://{config.USERNAME}:{config.PASSWORD}"
-#                        f"@{config.HOST}:{config.PORT}/{config.DATABASE}",
-#                        echo=False)
 
 settings = DefaultSettings()
 
-print("-------", settings.database_uri)
 engine = create_engine(settings.database_uri,
                        echo=False)
-# metadata = MetaData(bind=engine, schema=config.SCHEMA_NAME)
-metadata = MetaData(bind=engine)
 
-# current_session = scoped_session(session)
+metadata = MetaData(bind=engine)
 
 
 @as_declarative(metadata=metadata)

@@ -9,7 +9,6 @@ from server.handlers.notify_handler import NotifyHandler
 from server.handlers.news_handler import NewsHandler
 from server.handlers.decision_handler import DecisionHandler
 
-from configurations.default import DefaultSettings
 
 app = Flask(__name__)
 sys.path.append('../')
@@ -58,18 +57,10 @@ def api_add_url():
 api_add_url()
 # DataBase.create_db()
 
-if __name__ == '__main__':              # when I use docker-compose this part doesn't run
-    # DataBase.create_db()
+if __name__ == '__main__':
 
     api_add_url()
-    print(environ.get("APP_HOST", "127.0.0.1"))
     app.run(host=str(environ.get("APP_HOST", "127.0.0.1")),
-            port=int(environ.get("APP_PORT", 80)))
+            port=int(environ.get("APP_PORT", 8080)))
 
     pass
-
-# CRUD
-# 1) Create POST
-# 2) Read - GET
-# 3) Update - Patch Put
-# 4) Delete - DELETE

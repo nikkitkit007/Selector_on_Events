@@ -4,8 +4,7 @@ from datetime import datetime, timedelta
 from data_base.models.tbl_user import User
 import random
 
-# address = "http://" + config.HOST_ADDRESS + ":" + config.HOST_PORT
-address = "http://127.0.0.1:80"
+address = "http://" + config.APP_HOST + ":" + config.APP_PORT
 
 
 # ------------------------------TEST_USER------------------------------
