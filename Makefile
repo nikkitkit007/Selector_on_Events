@@ -20,5 +20,4 @@ db:
 	psql -h 127.0.0.1 -p 5435 -U postgres ITMO_Event
 
 help:
-	@echo -e "Usage: make [target] ...\n"
-	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
+	@echo "relax!!!"

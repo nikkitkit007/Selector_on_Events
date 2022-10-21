@@ -1,7 +1,7 @@
 import sys
-from flask import Flask, json
+from os import environ
 
-from data_base.db_creator import DataBase
+from flask import Flask
 
 from server.handlers.user_handler import UserHandler
 from server.handlers.event_handler import EventHandler
@@ -9,6 +9,7 @@ from server.handlers.notify_handler import NotifyHandler
 from server.handlers.news_handler import NewsHandler
 from server.handlers.decision_handler import DecisionHandler
 
+from configurations.default import DefaultSettings
 
 app = Flask(__name__)
 sys.path.append('../')
@@ -58,11 +59,13 @@ api_add_url()
 # DataBase.create_db()
 
 if __name__ == '__main__':              # when I use docker-compose this part doesn't run
-    DataBase.create_db()
+    # DataBase.create_db()
 
     api_add_url()
+    print(environ.get("APP_HOST", "127.0.0.1"))
+    app.run(host=str(environ.get("APP_HOST", "127.0.0.1")),
+            port=int(environ.get("APP_PORT", 80)))
 
-    # app.run(host=config.HOST_ADDRESS, port=config.HOST_PORT)
     pass
 
 # CRUD

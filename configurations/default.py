@@ -13,12 +13,12 @@ class DefaultSettings(BaseSettings):
     ENV: str = environ.get("ENV", "local")
     PATH_PREFIX: str = environ.get("PATH_PREFIX", "")           # api/v1
     APP_HOST: str = environ.get("APP_HOST", "http://127.0.0.1")
-    APP_PORT: int = int(environ.get("APP_PORT", 8080))
+    APP_PORT: int = int(environ.get("APP_PORT", 80))
 
     POSTGRES_DB: str = environ.get("POSTGRES_DB", "ITMO_Event")
     POSTGRES_HOST: str = environ.get("POSTGRES_HOST", "127.0.0.1")
     POSTGRES_USER: str = environ.get("POSTGRES_USER", "postgres")
-    POSTGRES_PORT: int = int(environ.get("POSTGRES_PORT", "5433")[-4:])
+    POSTGRES_PORT: int = int(environ.get("POSTGRES_PORT", "5435")[-4:])
     POSTGRES_PASSWORD: str = environ.get("POSTGRES_PASSWORD", "postgres")
     DB_CONNECT_RETRY: int = environ.get("DB_CONNECT_RETRY", 20)
     DB_POOL_SIZE: int = environ.get("DB_POOL_SIZE", 15)
@@ -41,7 +41,7 @@ class DefaultSettings(BaseSettings):
         """
         Get uri for connection with database.
         """
-        return "postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}".format(
+        return "postgresql://{user}:{password}@{host}:{port}/{database}".format(
             **self.database_settings,
         )
 

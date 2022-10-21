@@ -2,7 +2,7 @@
 import typing
 from contextlib import contextmanager
 
-from configurations import config
+from configurations.default import DefaultSettings
 from sqlalchemy import MetaData, create_engine
 from sqlalchemy.ext.declarative import as_declarative
 from sqlalchemy.orm import sessionmaker, Query, Mapper
@@ -27,10 +27,14 @@ Session = sessionmaker(query_cls=_get_query_cls)
 # engine = create_engine(f"postgresql+psycopg2://{config.USERNAME}:{config.PASSWORD}"
 #                        f"@{config.HOST}:{config.PORT}/{config.DATABASE}",
 #                        echo=False)
-engine = create_engine(f"postgresql://{config.USERNAME}:{config.PASSWORD}"
-                       f"@{config.HOST}:{config.PORT}/{config.DATABASE}",
+
+settings = DefaultSettings()
+
+print("-------", settings.database_uri)
+engine = create_engine(settings.database_uri,
                        echo=False)
-metadata = MetaData(bind=engine, schema=config.SCHEMA_NAME)
+# metadata = MetaData(bind=engine, schema=config.SCHEMA_NAME)
+metadata = MetaData(bind=engine)
 
 # current_session = scoped_session(session)
 
