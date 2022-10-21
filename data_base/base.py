@@ -28,7 +28,7 @@ Session = sessionmaker(query_cls=_get_query_cls)
 settings = DefaultSettings()
 
 engine = create_engine(settings.database_uri,
-                       echo=False)
+                       echo=True)
 
 metadata = MetaData(bind=engine)
 

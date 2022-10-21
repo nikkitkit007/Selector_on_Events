@@ -14,30 +14,30 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     expose:
-      - "5435"
+      - "5432"
     ports:
-      - "5435:5435"
+      - "5435:5432"
     restart: always
 
-  web:
-    container_name: web
-    build: .
-    ports:
-      - "8080:8080"
-    expose:
-      - "8080"
-    depends_on:
-      - db
-    environment:
-      - POSTGRES_PORT=${POSTGRES_PORT}
-      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-#    env_file:
-#      - .env
-    restart: always
-    command: bash ./gunicorn.sh
+#  web:
+#    container_name: web
+#    build: .
+#    ports:
+#      - "8080:8080"
+#    expose:
+#      - "8080"
+#    depends_on:
+#      - db
+#    environment:
+#      - POSTGRES_PORT=${POSTGRES_PORT}
+#      - POSTGRES_HOST=${POSTGRES_HOST}
+#      - POSTGRES_DB=${POSTGRES_DB}
+#      - POSTGRES_USER=${POSTGRES_USER}
+#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+##    env_file:
+##      - .env
+#    restart: always
+#    command: bash ./gunicorn.sh
 
 #  controller:
 #    container_name: event_controller

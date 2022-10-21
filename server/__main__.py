@@ -3,6 +3,7 @@ from os import environ
 
 from flask import Flask
 
+from data_base.db_creator import DataBase
 from server.handlers.user_handler import UserHandler
 from server.handlers.event_handler import EventHandler
 from server.handlers.notify_handler import NotifyHandler
