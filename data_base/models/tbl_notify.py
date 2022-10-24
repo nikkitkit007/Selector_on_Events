@@ -1,12 +1,13 @@
-from configurations import config
 import sqlalchemy as sa
-from data_base.base import Base, session, engine
 from datetime import datetime
-from configurations.logger_config import info_logger
+
+from data_base.base import Base, session, engine, settings
+
+from server import info_logger
 
 
 class Notify(Base):
-    __tablename__ = config.TBL_NOTIFIES
+    __tablename__ = settings.TBL_NOTIFIES
 
     notify_id = sa.Column('notify_id', sa.Integer, primary_key=True)
     event_id = sa.Column('event_id', sa.Integer, nullable=False)
@@ -14,7 +15,7 @@ class Notify(Base):
     notify_header = sa.Column('notify_header', sa.String(127))
     notify_data = sa.Column('notify_data', sa.String)
 
-    def __init__(self, notify_data):
+    def __init__(self, notify_data: dict):
         self.event_id = notify_data['event_id']
         self.time = notify_data['time']
         self.notify_header = notify_data['notify_header']

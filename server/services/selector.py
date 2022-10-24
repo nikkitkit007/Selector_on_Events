@@ -1,5 +1,3 @@
-from configurations import config
-
 from data_base.models.tbl_event import Event
 from data_base.models.tbl_user import User
 

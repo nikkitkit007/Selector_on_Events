@@ -1,12 +1,11 @@
-from configurations import config
 import sqlalchemy as sa
-from data_base.base import Base, session, engine
+from data_base.base import Base, session, settings
 
-from configurations.logger_config import info_logger
+from server import info_logger
 
 
 class News(Base):
-    __tablename__ = config.TBL_NEWS
+    __tablename__ = settings.TBL_NEWS
 
     news_id = sa.Column('news_id', sa.Integer, primary_key=True)
     header = sa.Column('header', sa.String(127), nullable=False)
@@ -64,7 +63,3 @@ class News(Base):
             local_session.delete(news_to_delete)
         else:
             info_logger.error(f'News {news_id} does not exist!')
-
-
-if __name__ == "__main__":
-    pass

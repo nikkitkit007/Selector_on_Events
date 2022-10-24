@@ -1,28 +1,3 @@
-import os
-# ------ uncomment this if local -------
-
-from dotenv import load_dotenv
-dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
-
-
-APP_HOST = os.getenv("APP_HOST")
-APP_PORT = os.getenv("APP_PORT")
-
-# ------------------------
-POSTGRES_DB = os.getenv("POSTGRES_DB")
-POSTGRES_USER = os.getenv("POSTGRES_USER")
-POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD")
-POSTGRES_HOST = os.getenv("POSTGRES_HOST")
-POSTGRES_PORT = os.getenv("POSTGRES_PORT")
-
-# ------------------------
-TBL_EVENTS = os.getenv("TBL_EVENTS")
-TBL_USERS = os.getenv("TBL_USERS")
-TBL_NOTIFIES = os.getenv("TBL_NOTIFIES")
-TBL_NEWS = os.getenv("TBL_NEWS")
-
 # ------------------------
 TIME_TO_POST_EVENT = 10
 TIME_TO_END_TAKE_PART = 7
@@ -82,15 +57,3 @@ REGEX_PHONE = r"?:\(?(\d{3})\)?)?(?:\s|-)?(\d{3})(?:\s|-)?(\d{2})(?:\s|-)?(\d{2}
 # time TIMESTAMP
 
 # -----------------------------------
-# ----------server_func--------------
-# add
-# update
-# get
-#
-# apply_event
-# decline_event
-#
-# add_user
-# get_user_history
-# update_user
-#

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import sys
 import re
 
-sys.path.append('/usr/src/app/')
+# sys.path.append('/usr/src/app/')
 from configurations import config
 from configurations.logger_config import info_logger, error_logger
 from data_base.models.tbl_event import Event

@@ -1,16 +1,15 @@
-from configurations import config
 import sqlalchemy as sa
-
-from data_base.base import Base, engine, session
-
-from .tbl_event import Event
-
 from datetime import datetime, timedelta
-from configurations.logger_config import info_logger, error_logger
+
+# from tbl_event import Event
+from data_base.base import Base, engine, session, settings
+from data_base.models.tbl_event import Event
+
+from server import info_logger, error_logger
 
 
 class User(Base):
-    __tablename__ = config.TBL_USERS
+    __tablename__ = settings.TBL_USERS
 
     user_id = sa.Column('user_id', sa.Integer, primary_key=True)
     user_isu_number = sa.Column('user_isu_number', sa.Integer)

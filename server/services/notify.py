@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from configurations import config
 # import data_base.db_worker as db
 
 from data_base.models.tbl_user import User

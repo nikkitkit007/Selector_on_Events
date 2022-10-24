@@ -1,4 +1,3 @@
-
 import typing
 from contextlib import contextmanager
 
@@ -28,9 +27,10 @@ Session = sessionmaker(query_cls=_get_query_cls)
 settings = DefaultSettings()
 
 engine = create_engine(settings.database_uri,
-                       echo=True)
+                       echo=False)
 
 metadata = MetaData(bind=engine)
+
 
 
 @as_declarative(metadata=metadata)

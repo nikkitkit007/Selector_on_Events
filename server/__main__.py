@@ -59,7 +59,7 @@ api_add_url()
 # DataBase.create_db()
 
 if __name__ == '__main__':
-
+    print("lol, im here!")
     api_add_url()
     app.run(host=str(environ.get("APP_HOST", "127.0.0.1")),
             port=int(environ.get("APP_PORT", 8080)))
