@@ -1,7 +1,7 @@
 from services.checker import Checker
 from time import sleep
 
-from data_base.models.tbl_event import Event
+from data_base.tbl_workers.event_worker import EventWorker
 
 from services.selector import Selector
 from services.notify import NotifySender
@@ -23,7 +23,7 @@ class EventController:
         """
         while True:
             with session(bind=engine) as local_session:
-                events = Event.get(all_events=True, local_session=local_session)
+                events = EventWorker.get(all_events=True, local_session=local_session)
                 for event in events:
                     event_id = int(event['event_id'])
 

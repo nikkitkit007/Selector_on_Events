@@ -5,8 +5,8 @@ import re
 # sys.path.append('/usr/src/app/')
 from configurations import config
 from configurations.logger_config import info_logger, error_logger
-from data_base.models.tbl_event import Event
-from data_base.models.tbl_user import User
+from data_base.tbl_workers.event_worker import EventWorker
+from data_base.tbl_workers import UserWorker
 
 from data_base.base import session
 
@@ -37,7 +37,7 @@ class Checker:
     @staticmethod
     def is_event_active(event_id: int, local_session: session) -> bool:
         time_now = datetime.now()
-        event_time_start = datetime.strptime(Event.get(local_session=local_session, event_id=event_id)['time_start'],
+        event_time_start = datetime.strptime(EventWorker.get(local_session=local_session, event_id=event_id)['time_start'],
                                              "%m/%d/%Y, %H:%M:%S")
 
         if time_now < event_time_start and (event_time_start - time_now >= timedelta(config.TIME_TO_POST_EVENT)):
@@ -48,7 +48,7 @@ class Checker:
     @staticmethod
     def is_user_banned(user_id: int, local_session: session) -> bool:
         # with session(bind=engine) as local_session:
-        user_ban = User.get(user_id, local_session)['ban_date']
+        user_ban = UserWorker.get(user_id, local_session)['ban_date']
 
         if user_ban:
             if user_ban <= datetime.now():
@@ -66,7 +66,7 @@ class Checker:
         :return: bool
         """
         # with session(bind=engine) as local_session:
-        event = Event.get(local_session, event_id)
+        event = EventWorker.get(local_session, event_id)
         time_now = datetime.now()
         if event:
             if (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now < days_before_event) & \
@@ -87,7 +87,7 @@ class Checker:
         :param event_id: int
         :return: bool
         """
-        event = Event.get(event_id)
+        event = EventWorker.get(event_id)
         # print(dict(events[0]))
         time_now = datetime.now()
 
@@ -106,7 +106,7 @@ class Checker:
         :param user_id: int
         :return: bool
         """
-        user_time_select_finish = User.get(user_id, local_session)['time_select_finish']
+        user_time_select_finish = UserWorker.get(user_id, local_session)['time_select_finish']
         time_now = datetime.now()
         if user_time_select_finish:
             if user_time_select_finish > time_now:
@@ -118,7 +118,7 @@ class Checker:
     @staticmethod
     def is_user_on_event_want(user_id: int, event_id: int, local_session: session) -> bool:
         # with session(bind=engine) as local_session:
-        event = Event.get(local_session=local_session, event_id=event_id)
+        event = EventWorker.get(local_session=local_session, event_id=event_id)
 
         if event:
             users_want = dict(event)['users_id_want']
@@ -139,7 +139,7 @@ class Checker:
         :return: bool
         """
         # with session(bind=engine) as local_session:
-        event = Event.get(local_session=local_session, event_id=event_id)
+        event = EventWorker.get(local_session=local_session, event_id=event_id)
 
         if event:
             users_go = dict(event)['users_id_go']
@@ -151,7 +151,7 @@ class Checker:
 
     @staticmethod
     def is_any_free_places_event(event_id: int, local_session: session) -> bool:
-        event = Event.get(local_session=local_session, event_id=event_id, all_events=False)
+        event = EventWorker.get(local_session=local_session, event_id=event_id, all_events=False)
         users_id_go = event['users_id_go']
         free_places = int(event['people_count']) - len(users_id_go)
 

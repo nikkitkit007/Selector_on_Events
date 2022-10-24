@@ -1,8 +1,8 @@
 import flask
 from flask import request
 
-from data_base.models.tbl_notify import Notify
-from data_base.models.tbl_user import User
+from data_base.tbl_workers import NotifyWorker
+from data_base.tbl_workers import UserWorker
 from typing import Tuple
 
 from configurations.logger_config import info_logger, error_logger
@@ -21,7 +21,7 @@ class NotifyHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                Notify.add(request.json, local_session)
+                NotifyWorker.add(request.json, local_session)
             info_logger.info(f"Notify for event {request.json['event_id']} added.")
             return flask.make_response("Notify added"), 200
         except Exception as E:
@@ -34,10 +34,10 @@ class NotifyHandler:
         notifies = []
         try:
             with session(bind=engine) as local_session:
-                notifies_id = User.get(request.json.get('user_id'), local_session)['notify_id']  # user's notifies
+                notifies_id = UserWorker.get(request.json.get('user_id'), local_session)['notify_id']  # user's notifies
 
                 for notify_id in notifies_id:
-                    notifies.append(Notify.get(notify_id, local_session))  # list with notifies json
+                    notifies.append(NotifyWorker.get(notify_id, local_session))  # list with notifies json
 
             return notifies
         except Exception as E:
@@ -52,7 +52,7 @@ class NotifyHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                Notify.delete(int(request.json.get('notify_id')), local_session)
+                NotifyWorker.delete(int(request.json.get('notify_id')), local_session)
             info_logger.info(f"Notify with id: {int(request.json.get('notify_id'))} deleted.")
             return flask.make_response("Notify deleted"), 200
         except Exception as E:

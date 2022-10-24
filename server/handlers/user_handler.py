@@ -2,7 +2,7 @@
 import flask
 from flask import request
 
-from data_base.models.tbl_user import User
+from data_base.tbl_workers import UserWorker
 from typing import Tuple
 
 from server.services.checker import Checker
@@ -49,7 +49,7 @@ class UserHandler:
             return flask.make_response({"error": "Wrong mail"}), 400
         try:
             with session(bind=engine) as local_session:
-                User.add(request.json, local_session)
+                UserWorker.add(request.json, local_session)
             info_logger.info(f'User {request.json["user_name"]} added')
             return flask.make_response("User added"), 200
         except Exception as E:
@@ -64,7 +64,7 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                user = User.get(int(request.args.get('user_id')), local_session)
+                user = UserWorker.get(int(request.args.get('user_id')), local_session)
             return flask.make_response({"user": user}), 200
         except Exception as E:
             error_logger.error(E, request.json)
@@ -99,7 +99,7 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                User.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'), local_session)
+                UserWorker.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'), local_session)
             info_logger.info(f"User with id:{int(request.json['user_id'])} updated!")
             return flask.make_response("User data updated"), 200
         except Exception as E:
@@ -114,7 +114,7 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                User.delete(int(request.json.get('user_id')), local_session)
+                UserWorker.delete(int(request.json.get('user_id')), local_session)
             info_logger.info(f"User with id: {int(request.json.get('user_id'))} deleted.")
             return flask.make_response("OK"), 200
         except Exception as E:

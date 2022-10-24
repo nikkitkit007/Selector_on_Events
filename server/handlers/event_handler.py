@@ -1,15 +1,12 @@
 import flask
 from flask import request
-
-from data_base.models.tbl_event import Event
-from data_base.models.tbl_user import User
 from typing import Tuple
 
-from server.services.checker import Checker
+from data_base.tbl_workers.event_worker import EventWorker
 
 from configurations.logger_config import info_logger, error_logger
 
-from data_base.base import Base, engine, session
+from data_base.base import engine, session
 
 
 class EventHandler:
@@ -29,7 +26,7 @@ class EventHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                Event.add(request.json, local_session)
+                EventWorker.add(request.json, local_session)
             info_logger.info(f"Event \"{request.json['event_name']}\" added!")
             return flask.make_response("200"), 200
         except Exception as E:
@@ -53,7 +50,7 @@ class EventHandler:
             """
         try:
             with session(bind=engine) as local_session:
-                Event.update(int(request.json['event_id']), request.json['event_data_to_update'], local_session)
+                EventWorker.update(int(request.json['event_id']), request.json['event_data_to_update'], local_session)
             info_logger.info(f"Event with id:{int(request.json['event_id'])} updated!")
             return flask.make_response("200"), 200
         except Exception as E:
@@ -68,8 +65,8 @@ class EventHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                events = Event.get(local_session=local_session, event_id=int(request.args.get('event_id', 0))
-                                   , all_events=False)
+                events = EventWorker.get(local_session=local_session, event_id=int(request.args.get('event_id', 0))
+                                         , all_events=False)
             return (flask.make_response({"event": events}), 200) if events \
                 else (flask.make_response({"error": "Not events"}), 400)
         except Exception as E:
@@ -84,7 +81,7 @@ class EventHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                events = Event.get(local_session=local_session, event_id=0, all_events=True)
+                events = EventWorker.get(local_session=local_session, event_id=0, all_events=True)
             return (flask.make_response({'events': events}), 200) if events \
                 else (flask.make_response({"error": "Not events"}), 400)
         except Exception as E:
@@ -99,7 +96,7 @@ class EventHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                Event.delete(int(request.json.get('event_id')), local_session)
+                EventWorker.delete(int(request.json.get('event_id')), local_session)
             info_logger.info(f"Event with id: {int(request.json.get('event_id'))} deleted.")
             return flask.make_response("Event deleted"), 200
         except Exception as E:

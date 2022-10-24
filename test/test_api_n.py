@@ -1,7 +1,7 @@
 import requests
 from configurations.default import DefaultSettings
 from datetime import datetime, timedelta
-from data_base.models.tbl_user import User
+# from data_base.models.tbl_user import User
 import random
 
 settings = DefaultSettings()
@@ -312,8 +312,8 @@ def test_registrate(user_count: int, event_id: int):
 if __name__ == "__main__":
     # TestEvent.event_get(3)
     test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
-    generate_events(15)
-    generate_users(12)
+    # generate_events(15)
+    # generate_users(12)
     test_registrate(5, 11)
 
     # print(TestDecision.apply_event(event_id=11, user_id=2))

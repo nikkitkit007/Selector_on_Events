@@ -1,5 +1,5 @@
-from data_base.models.tbl_event import Event
-from data_base.models.tbl_user import User
+from data_base.tbl_workers.event_worker import EventWorker
+from data_base.tbl_workers import UserWorker
 
 from data_base.base import Base, engine, session
 
@@ -10,12 +10,12 @@ class Selector:
     def get_user_score(users_ids: list, local_session: session):
         users_score = {}
         for user_id in users_ids:
-            users_score[user_id] = User.get(user_id, local_session)['score']
+            users_score[user_id] = UserWorker.get(user_id, local_session)['score']
         return users_score
 
     @staticmethod
     def select_users_on_event(event_id: int, local_session: session):
-        event = Event.get(local_session, event_id)
+        event = EventWorker.get(local_session, event_id)
         users_want = event["users_id_want"]
         users_go = event["users_id_go"]
         selected_users = {}

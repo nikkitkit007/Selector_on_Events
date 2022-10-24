@@ -1,7 +1,7 @@
 import flask
 from flask import request
 
-from data_base.models.tbl_news import News
+from data_base.tbl_workers import NewsWorker
 from typing import Tuple
 
 from configurations.logger_config import info_logger, error_logger
@@ -20,7 +20,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                News.add(request.json, local_session)
+                NewsWorker.add(request.json, local_session)
             info_logger.info(f"News with id: {request.json.get('header')} added.")
             return flask.make_response("News added"), 200
         except Exception as E:
@@ -35,7 +35,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                news = News.get(local_session, news_id=(request.args.get('news_id', 0)), all_news=False)
+                news = NewsWorker.get(local_session, news_id=(request.args.get('news_id', 0)), all_news=False)
             return (flask.make_response({"news": news}), 200) if news \
                 else (flask.make_response({"error": "Not news"}), 400)
         except Exception as E:
@@ -50,7 +50,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                news = News.get(local_session, news_id=0, all_news=True)
+                news = NewsWorker.get(local_session, news_id=0, all_news=True)
             return (flask.make_response({'news': news}), 200) if news \
                 else (flask.make_response({"error": "Not news"}), 400)
         except Exception as E:
@@ -70,7 +70,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                News.update(int(request.json.get('news_id')), request.json.get('news_data_to_update'), local_session)
+                NewsWorker.update(int(request.json.get('news_id')), request.json.get('news_data_to_update'), local_session)
             info_logger.info(f"News with id:{int(request.json['news_id'])} updated!")
             return flask.make_response("News updated"), 200
         except Exception as E:
@@ -85,7 +85,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                News.delete(int(request.json.get('news_id')), local_session)
+                NewsWorker.delete(int(request.json.get('news_id')), local_session)
             info_logger.info(f"News with id: {int(request.json.get('news_id'))} deleted.")
             return flask.make_response("News deleted"), 200
         except Exception as E:
