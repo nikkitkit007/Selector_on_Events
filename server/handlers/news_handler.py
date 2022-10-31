@@ -50,7 +50,7 @@ class NewsHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                news = NewsWorker.get(local_session, news_id=0, all_news=True)
+                news = NewsWorker.get(local_session, all_news=True)
             return (flask.make_response({'news': news}), 200) if news \
                 else (flask.make_response({"error": "Not news"}), 400)
         except Exception as E:
