@@ -32,7 +32,6 @@ engine = create_engine(settings.database_uri,
 metadata = MetaData(bind=engine)
 
 
-
 @as_declarative(metadata=metadata)
 class Base:
     pass

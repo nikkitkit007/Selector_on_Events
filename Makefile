@@ -17,7 +17,7 @@ migrate:  ##@Database Do all migrations in database
 	cd data_base && alembic upgrade $(args)
 
 db:
-	psql -h 127.0.0.1 -p 5435 -U postgres ITMO_Event
+	psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER} ${POSTGRES_DB}
 
 help:
 	@echo "relax!!!"
