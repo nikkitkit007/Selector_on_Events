@@ -1,14 +1,13 @@
 from datetime import datetime, timedelta
-import sys
 import re
 
-# sys.path.append('/usr/src/app/')
 from configurations import config
-from configurations.logger_config import info_logger, error_logger
+from configurations.logger_config import error_logger
 from data_base.tbl_workers.event_worker import EventWorker
 from data_base.tbl_workers import UserWorker
 
 from data_base.base import session
+
 
 days_before_event = timedelta(config.TIME_TO_POST_EVENT)
 days_finish_registration = timedelta(config.TIME_TO_END_TAKE_PART)
@@ -37,8 +36,8 @@ class Checker:
     @staticmethod
     def is_event_active(event_id: int, local_session: session) -> bool:
         time_now = datetime.now()
-        event_time_start = datetime.strptime(EventWorker.get(local_session=local_session, event_id=event_id)['time_start'],
-                                             "%m/%d/%Y, %H:%M:%S")
+        event_time_start = datetime.strptime(EventWorker.get(local_session=local_session,
+                                                             event_id=event_id)['time_start'], "%m/%d/%Y, %H:%M:%S")
 
         if time_now < event_time_start and (event_time_start - time_now >= timedelta(config.TIME_TO_POST_EVENT)):
             return True
@@ -65,7 +64,7 @@ class Checker:
         :param event_id: int
         :return: bool
         """
-        # with session(bind=engine) as local_session:
+
         event = EventWorker.get(local_session, event_id)
         time_now = datetime.now()
         if event:
@@ -77,24 +76,6 @@ class Checker:
         else:
             error_logger.error(f"Event with id:{event_id} does not exist!")
             return False
-
-    @staticmethod
-    def is_event_opened_for_go(event_id: int) -> bool:
-        """
-        If time before event allow ... stop!\n
-        I need delete this function\n
-        TODO : Delete me!\n
-        :param event_id: int
-        :return: bool
-        """
-        event = EventWorker.get(event_id)
-        # print(dict(events[0]))
-        time_now = datetime.now()
-
-        if (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now < days_finish_registration) & \
-                (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now > timedelta(1)):
-            return True
-        return False
 
     @staticmethod
     def is_user_can_apply_event(user_id: int, local_session: session) -> bool:
@@ -117,7 +98,6 @@ class Checker:
 
     @staticmethod
     def is_user_on_event_want(user_id: int, event_id: int, local_session: session) -> bool:
-        # with session(bind=engine) as local_session:
         event = EventWorker.get(local_session=local_session, event_id=event_id)
 
         if event:
@@ -138,7 +118,6 @@ class Checker:
         :param event_id: int
         :return: bool
         """
-        # with session(bind=engine) as local_session:
         event = EventWorker.get(local_session=local_session, event_id=event_id)
 
         if event:

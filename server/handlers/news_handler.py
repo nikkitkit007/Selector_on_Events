@@ -1,12 +1,12 @@
 import flask
 from flask import request
 
-from data_base.tbl_workers import NewsWorker
 from typing import Tuple
 
 from configurations.logger_config import info_logger, error_logger
 
-from data_base.base import Base, engine, session
+from data_base.base import engine, session
+from data_base.tbl_workers import NewsWorker
 
 
 class NewsHandler:

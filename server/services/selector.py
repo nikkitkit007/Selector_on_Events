@@ -1,7 +1,6 @@
-from data_base.tbl_workers.event_worker import EventWorker
-from data_base.tbl_workers import UserWorker
 
-from data_base.base import Base, engine, session
+from data_base.tbl_workers import UserWorker, EventWorker
+from data_base.base import session
 
 
 class Selector:
@@ -22,7 +21,6 @@ class Selector:
         if users_want:
             if users_go:
                 people_count_to_select = event["people_count"] - event["users_is_go"].count()
-                # users_id_want = [1010, 1011, 1012, 1013, 1014, 1015, 1016, 1017, 1018, 1020, 1021, 1022, 1023]
             else:
                 people_count_to_select = event["people_count"]
 

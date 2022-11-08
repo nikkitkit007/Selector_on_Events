@@ -1,14 +1,13 @@
 import flask
 from flask import request
 
-from data_base.tbl_workers.event_worker import EventWorker
-from data_base.tbl_workers import UserWorker
 from typing import Tuple
 
 from server.services.checker import Checker
-
 from configurations.logger_config import info_logger, error_logger
-from data_base.base import Base, engine, session
+from data_base.base import engine, session
+from data_base.tbl_workers.event_worker import EventWorker
+from data_base.tbl_workers import UserWorker
 
 
 class DecisionHandler:

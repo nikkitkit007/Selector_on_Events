@@ -9,21 +9,7 @@ from server.services.checker import Checker
 
 from configurations.logger_config import info_logger, error_logger
 
-from data_base.base import Base, engine, session
-
-# ---
-# /api/user/add:
-#   post:
-#     tags:
-#       - User
-#     parameters:
-#       - in: query
-#         description: "Data"
-#     responses:
-#       '200':
-#         description: "User added"
-#       '400':
-#         description: "User not added"
+from data_base.base import engine, session
 
 
 class UserHandler:
@@ -71,8 +57,7 @@ class UserHandler:
             return flask.make_response({"error": str(E)}), 500
 
     @staticmethod
-    # @app.route('/api/user/get_history', methods=["GET"])  # feature
-    def user_get_history():
+    def user_get_history():         # feature
         user_id = request.json.args()
 
         try:
@@ -99,7 +84,8 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                UserWorker.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'), local_session)
+                UserWorker.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'),
+                                  local_session)
             info_logger.info(f"User with id:{int(request.json['user_id'])} updated!")
             return flask.make_response("User data updated"), 200
         except Exception as E:

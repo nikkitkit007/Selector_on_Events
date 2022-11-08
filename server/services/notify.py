@@ -1,9 +1,7 @@
-from datetime import datetime, timedelta
-# import data_base.db_worker as db
 
 from data_base.tbl_workers import UserWorker
 from data_base.models.tbl_notify import Notify
-from data_base.base import Base, session, engine
+from data_base.base import session
 
 
 class NotifySender:

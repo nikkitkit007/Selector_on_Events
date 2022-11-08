@@ -1,12 +1,12 @@
 import flask
 from flask import request
-from typing import Tuple
 
-from data_base.tbl_workers.event_worker import EventWorker
+from typing import Tuple
 
 from configurations.logger_config import info_logger, error_logger
 
 from data_base.base import engine, session
+from data_base.tbl_workers.event_worker import EventWorker
 
 
 class EventHandler:
