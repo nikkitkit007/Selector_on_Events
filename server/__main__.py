@@ -15,7 +15,7 @@ sys.path.append('../')
 
 @app.route('/')
 def index():
-    return "Hi"
+    return "Hi", 200
 
 
 def api_add_url():

@@ -50,7 +50,7 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                user = UserWorker.get(int(request.args.get('user_id')), local_session)
+                user = UserWorker.get(int(request.args.get('user_isu_number')), local_session)
             return flask.make_response({"user": user}), 200
         except Exception as E:
             error_logger.error(E, request.json)
@@ -69,9 +69,8 @@ class UserHandler:
     @staticmethod
     def user_update() -> Tuple[flask.Response, int]:
         """
-        request.json = {"user_id": int(user_id),
+        request.json = {"user_isu_number": int(user_isu_number),
                         'user_data_to_update': {
-                                'user_isu_number': int,
                                 'user_name': str(127),
                                 'user_surname': str(127),
                                 'user_patronymic': str(127),
@@ -84,9 +83,9 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                UserWorker.update(int(request.json.get('user_id')), request.json.get('user_data_to_update'),
+                UserWorker.update(int(request.json.get('user_isu_number')), request.json.get('user_data_to_update'),
                                   local_session)
-            info_logger.info(f"User with id:{int(request.json['user_id'])} updated!")
+            info_logger.info(f"User with isu:{int(request.json['user_isu_number'])} updated!")
             return flask.make_response("User data updated"), 200
         except Exception as E:
             error_logger.error(E, request.json)
@@ -100,8 +99,8 @@ class UserHandler:
         """
         try:
             with session(bind=engine) as local_session:
-                UserWorker.delete(int(request.json.get('user_id')), local_session)
-            info_logger.info(f"User with id: {int(request.json.get('user_id'))} deleted.")
+                UserWorker.delete(int(request.json.get('user_isu_number')), local_session)
+            info_logger.info(f"User with isu: {int(request.json.get('user_isu_number'))} deleted.")
             return flask.make_response("OK"), 200
         except Exception as E:
             error_logger.error(E, request.json)

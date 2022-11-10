@@ -38,7 +38,7 @@ def upgrade():
     op.create_table(
         "user",
         Column('user_id', INTEGER, primary_key=True),
-        Column('user_isu_number', INTEGER),
+        Column('user_isu_number', INTEGER, unique=True),
         Column('user_name', VARCHAR(127), nullable=False),
         Column('user_surname', VARCHAR(127), nullable=False),
         Column('user_patronymic', VARCHAR(127), nullable=False),

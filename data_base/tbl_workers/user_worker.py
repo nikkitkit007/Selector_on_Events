@@ -44,22 +44,22 @@ class UserWorker(User):
         local_session.add(UserWorker(user_to_add))
 
     @staticmethod
-    def get(user_id: int, local_session: session):
+    def get(user_isu_number: int, local_session: session):
         """
         SELECT * from User WHERE user_id = user_id;\n
         :param local_session: session
-        :param user_id: int
+        :param user_isu_number: int
         :return: list with user data
         """
-        user = local_session.query(UserWorker).filter(UserWorker.user_id == user_id).first()
+        user = local_session.query(UserWorker).filter(UserWorker.user_isu_number == user_isu_number).first()
         if user:
             return user.get_dict()
         else:
             return {}
 
     @staticmethod
-    def update(user_id: int, user_data_to_update: dict, local_session: session):
-        user_to_update = local_session.query(UserWorker).filter(UserWorker.user_id == user_id).first()
+    def update(user_isu_number: int, user_data_to_update: dict, local_session: session):
+        user_to_update = local_session.query(UserWorker).filter(UserWorker.user_isu_number == user_isu_number).first()
 
         if user_to_update:
             user_to_update.user_name = str(user_data_to_update["user_name"])
@@ -71,15 +71,15 @@ class UserWorker(User):
             user_to_update.is_russian_citizenship = bool(user_data_to_update['is_russian_citizenship'])
 
         else:
-            info_logger.error(f'User {user_id} does not exist!')
+            info_logger.error(f'User {user_isu_number} does not exist!')
 
     @staticmethod
-    def delete(user_id: int, local_session: session):
-        user_to_delete = local_session.query(UserWorker).filter(UserWorker.user_id == user_id).first()
+    def delete(user_isu_number: int, local_session: session):
+        user_to_delete = local_session.query(UserWorker).filter(UserWorker.user_isu_number == user_isu_number).first()
         if user_to_delete:
             local_session.delete(user_to_delete)
         else:
-            info_logger.error(f'User {user_id} does not exist!')
+            info_logger.error(f'User {user_isu_number} does not exist!')
 
     @staticmethod
     def update_add_notify(user_id: int, notify_id: int, local_session: session):

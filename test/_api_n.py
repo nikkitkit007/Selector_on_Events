@@ -30,11 +30,20 @@ class TestUser:
         response = requests.post(address + method, json=user)
         return response.status_code == 200
 
+    # @staticmethod
+    # def user_get_profile(user_id: int = 1):
+    #     method = "/api/user/get"
+    #
+    #     user_id = {'user_id': user_id}
+    #
+    #     response = requests.get(address + method, params=user_id)
+    #     print(response.content)
+    #     return response.status_code == 200
     @staticmethod
-    def user_get_profile(user_id: int = 1):
+    def user_get_profile(user_isu_number: int = 284679):
         method = "/api/user/get"
 
-        user_id = {'user_id': user_id}
+        user_id = {'user_isu_number': user_isu_number}
 
         response = requests.get(address + method, params=user_id)
         print(response.content)
@@ -264,7 +273,7 @@ class TestDecision:
         return response.status_code == 200
 
 
-def test_base_functions(user_id: int = 1, event_id: int = 1, news_id: int = 1, notify_id: int = 1):
+def _base_functions(user_id: int = 1, event_id: int = 1, news_id: int = 1, notify_id: int = 1):
 
     print(TestUser.user_add_correct())
     print(TestUser.user_get_profile(user_id))
@@ -300,7 +309,7 @@ def generate_events(event_count: int):
         TestEvent.event_add(time_start=time_event_start)
 
 
-def test_registrate(user_count: int, event_id: int):
+def _registrate(user_count: int, event_id: int):
     for i in range(user_count):
         TestDecision.event_registration(user_id=i, event_id=event_id)
     TestDecision.event_cancel_registration(user_id=(user_count-1), event_id=event_id)
@@ -310,11 +319,13 @@ def test_registrate(user_count: int, event_id: int):
 
 
 if __name__ == "__main__":
+    TestUser.user_get_profile()
+
     # TestEvent.event_get(3)
-    test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
+    # test_base_functions(user_id=1, event_id=1, notify_id=1, news_id=1)
     # generate_events(15)
     # generate_users(12)
-    test_registrate(5, 11)
+    # test_registrate(5, 11)
 
     # print(TestDecision.apply_event(event_id=11, user_id=2))
     # print(TestDecision.decline_event(event_id=10, user_id=2))
