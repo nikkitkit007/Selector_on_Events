@@ -1,6 +1,6 @@
 # ------------------------
 TIME_TO_POST_EVENT = 10
-TIME_TO_END_TAKE_PART = 7
+TIME_TO_END_TAKE_PART = 3
 TIME_TO_FIRST_APPLICANTS = TIME_TO_POST_EVENT - 3
 TIME_TO_ACCEPT = 1                          # 1 day
 TIME_TO_BAN = 3

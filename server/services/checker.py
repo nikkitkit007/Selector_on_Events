@@ -67,10 +67,11 @@ class Checker:
 
         event = EventWorker.get(local_session, event_id)
         time_now = datetime.now()
+        event_time_start = datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S")
+
         if event:
-            if (datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S") - time_now < days_before_event) & \
-                    (datetime.strptime(dict(event)['time_start'],
-                                       "%m/%d/%Y, %H:%M:%S") - time_now > days_finish_registration):
+            if (event_time_start < time_now) &\
+                    (time_now - event_time_start < days_finish_registration):
                 return True
             return False
         else:

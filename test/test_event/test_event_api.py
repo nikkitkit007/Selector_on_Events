@@ -1,7 +1,9 @@
 import requests
 from starlette import status
 
+
 event_id = 1
+
 
 class TestEvent:
     def test_add(self, get_base_url, get_one_event):
@@ -26,7 +28,7 @@ class TestEvent:
 
         response = requests.get(get_base_url + method)
 
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
 
     def test_update(self, get_base_url, get_update_event):
         method = "/api/event/update"
@@ -43,4 +45,4 @@ class TestEvent:
         event_id_dict = {'event_id': event_id}
 
         response = requests.delete(get_base_url + method, json=event_id_dict)
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
