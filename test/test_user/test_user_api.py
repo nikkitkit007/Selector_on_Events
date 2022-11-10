@@ -28,11 +28,11 @@ class TestUser:
 
         assert response.status_code == status.HTTP_200_OK
 
-    def test_delete(self, get_base_url, get_update_user):
+    def test_delete(self, get_base_url, get_one_user):
         method = "/api/user/delete"
 
-        user_isu_number = get_update_user["user_isu_number"]
-        user_id = {'user_isu_number': user_isu_number}
+        user_isu_number = get_one_user["user_isu_number"]
+        user_isu_number_dict = {'user_isu_number': user_isu_number}
 
-        response = requests.delete(get_base_url + method, json=user_id)
+        response = requests.delete(get_base_url + method, json=user_isu_number_dict)
         assert response.status_code == 200

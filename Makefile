@@ -18,6 +18,9 @@ run:
 migrate:  ##@Database Do all migrations in database
 	cd data_base && alembic upgrade $(args)
 
+clear_db:  ##@Database Do all migrations in database
+	cd data_base && alembic downgrade -1 &&  alembic upgrade +1
+
 db:
 	psql -h ${POSTGRES_HOST} -p ${POSTGRES_PORT} -U ${POSTGRES_USER} ${POSTGRES_DB}
 
