@@ -18,6 +18,12 @@ def index():
     return "Hi", 200
 
 
+# @app.route('/health_db')
+# def index():
+#
+#     return "Hi", 200
+
+
 def api_add_url():
     # ----------------------------------USER-----------------------------------
     app.add_url_rule("/api/user/add", view_func=UserHandler.user_add, methods=["POST"])
@@ -51,6 +57,8 @@ def api_add_url():
 
     app.add_url_rule("/api/apply_event", view_func=DecisionHandler.apply_event, methods=["POST"])
     app.add_url_rule("/api/decline_event", view_func=DecisionHandler.decline_event, methods=["POST"])
+
+
 
 
 api_add_url()

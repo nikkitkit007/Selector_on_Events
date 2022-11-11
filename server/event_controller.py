@@ -1,14 +1,14 @@
-from services.checker import Checker
 from time import sleep
-
-from data_base.tbl_workers.event_worker import EventWorker
 
 from services.selector import Selector
 from services.notify import NotifySender
+from services.checker import Checker
 
 from data_base.base import engine, session
+from data_base.tbl_workers.event_worker import EventWorker
 
 from configurations import config
+
 
 delay = config.TIME_TO_CHECK
 
@@ -18,7 +18,7 @@ class EventController:
     @staticmethod
     def control_event():
         """
-        if event.time_start <= time to choose first applicants.\n
+        if event.time_start <= time to choose first applicants
         :return: sleep...
         """
         while True:
