@@ -1,3 +1,5 @@
+LEN_ERR_MSG = 40
+
 # ------------------------
 TIME_TO_POST_EVENT = 10
 TIME_TO_END_TAKE_PART = 3

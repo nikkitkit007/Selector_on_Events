@@ -1,30 +1,48 @@
 import sys
 from os import environ
 
-from flask import Flask
+from flask import Flask, redirect, make_response
+from sqlalchemy_utils import database_exists
+from starlette import status
 
+from server.handlers.login_handler import login
 from server.handlers.user_handler import UserHandler
 from server.handlers.event_handler import EventHandler
 from server.handlers.notify_handler import NotifyHandler
 from server.handlers.news_handler import NewsHandler
 from server.handlers.decision_handler import DecisionHandler
 
+from configurations.default import DefaultSettings
+
+
 app = Flask(__name__)
 sys.path.append('../')
 
 
-@app.route('/')
+@app.route('/api/')
 def index():
-    return "Hi", 200
+
+    return "Hi", status.HTTP_200_OK
 
 
-# @app.route('/health_db')
-# def index():
-#
-#     return "Hi", 200
+@app.route('/api/health_app')
+def health_app():
+
+    return "app live", status.HTTP_200_OK
+
+
+@app.route('/api/health_db')
+def health_db():
+    settings = DefaultSettings()
+    db_uri = settings.database_uri
+    if database_exists(db_uri):
+        return "db connected", status.HTTP_200_OK
+    return "db doesn't connected", status.HTTP_404_NOT_FOUND
 
 
 def api_add_url():
+    app.add_url_rule("/api/login", view_func=login)
+
     # ----------------------------------USER-----------------------------------
     app.add_url_rule("/api/user/add", view_func=UserHandler.user_add, methods=["POST"])
     app.add_url_rule("/api/user/get", view_func=UserHandler.user_get_profile, methods=["GET"])
@@ -59,12 +77,9 @@ def api_add_url():
     app.add_url_rule("/api/decline_event", view_func=DecisionHandler.decline_event, methods=["POST"])
 
 
-
-
 api_add_url()
 
+
 if __name__ == '__main__':
-    print("lol, im here!")
-    api_add_url()
     app.run(host=str(environ.get("APP_HOST", "127.0.0.1")),
             port=int(environ.get("APP_PORT", 8080)))

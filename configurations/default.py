@@ -15,7 +15,7 @@ class DefaultSettings(BaseSettings):
 
     I need three environments: for development, testing and production.
     """
-    TEST = bool(environ.get("TEST", "True"))
+    TEST = bool(environ.get("TEST", "False"))
     if TEST:
         APP_HOST = "127.0.0.1"
         APP_PORT = 8080
@@ -23,7 +23,7 @@ class DefaultSettings(BaseSettings):
         POSTGRES_DB = "test_itmo_event"
         POSTGRES_HOST = "127.0.0.1"
         POSTGRES_USER = "test"
-        POSTGRES_PORT = "5435"
+        POSTGRES_PORT = "5432"
         POSTGRES_PASSWORD = "test"
 
     else:
@@ -45,6 +45,9 @@ class DefaultSettings(BaseSettings):
     TBL_USERS = environ.get("TBL_USERS", "user")
     TBL_NOTIFIES = environ.get("TBL_NOTIFIES", "notify")
     TBL_NEWS = environ.get("TBL_NEWS", "news")
+    TBL_SSO_PUB_KEY = environ.get("TBL_SSO_PUB_KEY", "sso_pub_key")
+
+
 
     @property
     def database_settings(self) -> dict:

@@ -19,4 +19,3 @@ class Event(Base):
     users_id_go = sa.Column('users_id_go', sa.ARRAY(sa.Integer),
                             default={})
     image = sa.Column('image', sa.String(127))
-

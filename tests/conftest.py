@@ -9,6 +9,8 @@ from configurations.default import DefaultSettings
 
 # from data_base.base import engine, session
 
+cookies = {'access_token': 'lol_lol_lol'}
+
 
 dotenv_path = os.path.join(os.path.dirname(__file__), '../.env')
 if os.path.exists(dotenv_path):

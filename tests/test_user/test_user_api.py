@@ -1,13 +1,15 @@
 import requests
 from starlette import status
 
+from tests.conftest import cookies
+
 
 class TestUser:
     def test_add(self, get_base_url, get_one_user):
         method = "/api/user/add"
         user = get_one_user
 
-        response = requests.post(get_base_url + method, json=user)
+        response = requests.post(get_base_url + method, json=user, cookies=cookies)
 
         assert response.status_code == status.HTTP_200_OK
 
@@ -16,7 +18,7 @@ class TestUser:
         user_isu = get_one_user["user_isu_number"]
         user_isu_dict = {'user_isu_number': user_isu}
 
-        response = requests.get(get_base_url + method, params=user_isu_dict)
+        response = requests.get(get_base_url + method, params=user_isu_dict, cookies=cookies)
 
         assert response.status_code == status.HTTP_200_OK
 
@@ -24,7 +26,7 @@ class TestUser:
         method = "/api/user/update"
         data_update = get_update_user
 
-        response = requests.post(get_base_url + method, json=data_update)
+        response = requests.post(get_base_url + method, json=data_update, cookies=cookies)
 
         assert response.status_code == status.HTTP_200_OK
 
@@ -34,5 +36,5 @@ class TestUser:
         user_isu_number = get_one_user["user_isu_number"]
         user_isu_number_dict = {'user_isu_number': user_isu_number}
 
-        response = requests.delete(get_base_url + method, json=user_isu_number_dict)
+        response = requests.delete(get_base_url + method, json=user_isu_number_dict, cookies=cookies)
         assert response.status_code == 200

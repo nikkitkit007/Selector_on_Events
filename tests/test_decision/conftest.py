@@ -3,6 +3,7 @@ import requests
 from datetime import datetime, timedelta
 from random import randint
 
+from tests.conftest import cookies
 
 get_base_url = "http://127.0.0.1:8080"
 
@@ -18,7 +19,7 @@ def create_user(user_isu_number: int = 2):
             'mail': "lol@mail.ru",
             'is_russian_citizenship': True}
 
-    requests.post(get_base_url + method, json=user)
+    requests.post(get_base_url + method, json=user, cookies=cookies)
 
 
 def create_event(time: dict):
@@ -36,7 +37,7 @@ def create_event(time: dict):
              'coefficient': randint(10, 30),
              'image': '/images/lol/lal.jpeg'}
 
-    requests.post(get_base_url + method, json=event)
+    requests.post(get_base_url + method, json=event, cookies=cookies)
 
 
 @pytest.fixture(scope='session')

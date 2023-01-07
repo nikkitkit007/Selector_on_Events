@@ -38,7 +38,7 @@ class NewsWorker(News):
         return {}
 
     @staticmethod
-    def update(news_id: int, news_data_to_update: dict, local_session: session()):
+    def update(news_id: int, news_data_to_update: dict, local_session: session):
         news_to_update = local_session.query(NewsWorker).filter(NewsWorker.news_id == news_id).first()
         if news_to_update:
             news_to_update.header = news_data_to_update["header"]
@@ -49,7 +49,7 @@ class NewsWorker(News):
             info_logger.error(f'News {news_id} does not exist!')
 
     @staticmethod
-    def delete(news_id: int, local_session: session()):
+    def delete(news_id: int, local_session: session):
         news_to_delete = local_session.query(NewsWorker).filter(NewsWorker.news_id == news_id).first()
         if news_to_delete:
             local_session.delete(news_to_delete)

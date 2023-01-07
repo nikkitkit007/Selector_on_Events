@@ -9,8 +9,7 @@ services:
       - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_PORT=${POSTGRES_PORT}
-#      - POSTGRES_HOST=${POSTGRES_HOST}
-      - POSTGRES_HOST="0.0.0.0"
+      - POSTGRES_HOST=${POSTGRES_HOST}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -25,29 +24,21 @@ services:
     build: .
     ports:
       - "8080:8080"
-#    network_mode: host
     depends_on:
       - db
     links:
       - db
-#    env_file:
-#      - .env
     restart: always
-#    command: bash ./gunicorn.sh
-#    command:
-#      - python wsgi.py
 
 
-#  controller:
-#    container_name: event_controller
-#    #    env_file:
-##      - .env
-#    build: .
+  controller:
+    container_name: event_controller
+    build: .
 #    environment:
 #      - DB_SERVER=kanban-postgres
-##    depends_on:
-##      - db
-#    links:
-#      - db
-#    restart: always
-#    command: python server/event_controller.py
+    depends_on:
+      - db
+    links:
+      - db
+    restart: always
+    command: python server/event_controller.py

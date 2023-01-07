@@ -1,9 +1,6 @@
 import sqlalchemy as sa
-from datetime import datetime
 
-from data_base.base import Base, session, engine, settings
-
-from server import info_logger
+from data_base.base import Base, settings
 
 
 class Notify(Base):
