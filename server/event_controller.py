@@ -16,7 +16,7 @@ delay = config.TIME_TO_CHECK
 class EventController:
 
     @staticmethod
-    def control_event():
+    async def control_event():
         """
         if event.time_start <= time to choose first applicants
         :return: sleep...
@@ -30,11 +30,11 @@ class EventController:
                     if Checker.is_event_active(event_id, local_session):
                         print("Active event is: ", event_id)
                         if Checker.is_any_free_places_event(event_id, local_session):
-                            users_id_go = Selector.select_users_on_event(event_id=event_id, local_session=local_session)
+                            users_id_go = await Selector.select_users_on_event(event_id=event_id, local_session=local_session)
                             print(users_id_go)
                             if users_id_go:
                                 for user_id in users_id_go:
-                                    NotifySender.send_notifies(user_id, event_id, local_session)
+                                    await NotifySender.send_notifies(user_id, event_id, local_session)
 
             sleep(10)  # 6 hours
 

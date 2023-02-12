@@ -1,9 +1,9 @@
 import sqlalchemy as sa
-from data_base.base import Base, settings
+from data_base import DeclarativeBase, DefaultSettings
 
 
-class User(Base):
-    __tablename__ = settings.TBL_USERS
+class User(DeclarativeBase):
+    __tablename__ = DefaultSettings().TBL_USERS
 
     user_id = sa.Column('user_id', sa.Integer, primary_key=True)
     user_isu_number = sa.Column('user_isu_number', sa.Integer)

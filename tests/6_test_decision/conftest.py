@@ -9,7 +9,7 @@ get_base_url = "http://127.0.0.1:8080"
 
 
 def create_user(user_isu_number: int = 2):
-    method = "/api/user/add"
+    method = "/api/user"
     user = {'user_isu_number': user_isu_number,
             'user_name': 'test',
             'user_surname': 'test',
@@ -23,7 +23,7 @@ def create_user(user_isu_number: int = 2):
 
 
 def create_event(time: dict):
-    method = "/api/event/add"
+    method = "/api/event"
 
     time_start = time["time_start"]
     time_end = time["time_end"]

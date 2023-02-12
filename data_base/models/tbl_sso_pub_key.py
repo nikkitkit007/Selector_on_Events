@@ -1,11 +1,11 @@
 import sqlalchemy as sa
 import datetime
 
-from data_base.base import Base, settings
+from data_base import DeclarativeBase, DefaultSettings
 
 
-class SsoPubKey(Base):
-    __tablename__ = settings.TBL_SSO_PUB_KEY
+class SsoPubKey(DeclarativeBase):
+    __tablename__ = DefaultSettings().TBL_SSO_PUB_KEY
 
     kid = sa.Column("kid", sa.TEXT, unique=True, primary_key=True)
     kty = sa.Column("kty", sa.TEXT)

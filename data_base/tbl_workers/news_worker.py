@@ -1,13 +1,11 @@
-from data_base.base import session
+from sqlalchemy import select, insert, and_, update, delete
+
+from data_base.base import get_session
 from server import info_logger, error_logger
 from data_base.models.tbl_news import News
 
 
 class NewsWorker(News):
-    def __init__(self, news_data):
-        self.header = news_data['header']
-        self.data = news_data['data']
-        self.time = news_data['time']
 
     def __repr__(self):
         return f"<News(news_name: {self.header})>"
@@ -19,40 +17,50 @@ class NewsWorker(News):
         return atts_dict
 
     @staticmethod
-    def add(news_to_add: dict, local_session: session):
-        local_session.add(NewsWorker(news_to_add))
+    async def add(news_to_add: dict, local_session: get_session):
+        query = insert(News).values(news_to_add)
+        await local_session.execute(query)
 
     @staticmethod
-    def get(local_session: session, news_id: int = 0, all_news: bool = False):
+    async def get(local_session: get_session, news_id: int = None, all_news: bool = None):
         if all_news:
-            news_all = local_session.query(NewsWorker).all()
-            if news_all:
-                all_news_data = []
-                for news in news_all:
-                    all_news_data.append(news.get_dict())
-                return all_news_data
+            query = select(News).where()
+            all_news = await local_session.execute(query)
+            all_news = all_news.scalars().all()
+
+            if all_news:
+                all_news_list = []
+                for news in all_news:
+                    all_news_list.append(NewsWorker.get_dict(news))
+                return all_news_list
+            else:
+                return {}
         else:
-            news = local_session.query(NewsWorker).filter(NewsWorker.news_id == news_id).first()
+            query = select(News).where(News.news_id == int(news_id)).limit(1)
+            news = await local_session.execute(query)
+            news = news.scalars().first()
+
             if news:
-                return news.get_dict()
-        return {}
+                return NewsWorker.get_dict(news)
+            else:
+                return {}
 
     @staticmethod
-    def update(news_id: int, news_data_to_update: dict, local_session: session):
-        news_to_update = local_session.query(NewsWorker).filter(NewsWorker.news_id == news_id).first()
-        if news_to_update:
-            news_to_update.header = news_data_to_update["header"]
-            news_to_update.data = news_data_to_update["data"]
-            news_to_update.time = news_data_to_update["time"]
+    async def update(news_id: int, news_data_to_update: dict, local_session: get_session):
+        query = update(News).where(News.news_id == news_id).values(news_data_to_update)
+        await local_session.execute(query)
 
-        else:
-            info_logger.error(f'News {news_id} does not exist!')
+        # news_to_update = await local_session.query(NewsWorker).filter(NewsWorker.news_id == news_id).first()
+        # if news_to_update:
+        #     news_to_update.header = news_data_to_update["header"]
+        #     news_to_update.data = news_data_to_update["data"]
+        #     news_to_update.time = news_data_to_update["time"]
+        #
+        # else:
+        #     info_logger.error(f'News {news_id} does not exist!')
 
     @staticmethod
-    def delete(news_id: int, local_session: session):
-        news_to_delete = local_session.query(NewsWorker).filter(NewsWorker.news_id == news_id).first()
-        if news_to_delete:
-            local_session.delete(news_to_delete)
-        else:
-            info_logger.error(f'News {news_id} does not exist!')
+    async def delete(news_id: int, local_session: get_session):
+        query = delete(News).where(News.news_id == news_id)
+        await local_session.execute(query)
 

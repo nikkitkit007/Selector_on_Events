@@ -6,8 +6,7 @@ from configurations.logger_config import error_logger
 from data_base.tbl_workers.event_worker import EventWorker
 from data_base.tbl_workers import UserWorker
 
-from data_base.base import session
-
+from data_base.base import get_session
 
 days_before_event = timedelta(config.TIME_TO_POST_EVENT)
 days_finish_registration = timedelta(config.TIME_TO_END_TAKE_PART)
@@ -17,7 +16,7 @@ delay = config.TIME_TO_CHECK
 class Checker:
 
     @staticmethod
-    def is_correct_mail(mail_address: str) -> bool:
+    async def is_correct_mail(mail_address: str) -> bool:
         regex_mail = re.compile(config.REGEX_MAIL)
         if re.fullmatch(regex_mail, mail_address):
             return True
@@ -25,7 +24,7 @@ class Checker:
             return False
 
     @staticmethod
-    def is_correct_phone(phone: str) -> bool:
+    async def is_correct_phone(phone: str) -> bool:
         # regex_phone = re.compile(config.REGEX_PHONE)
         regex_phone = re.compile(r"\d{10}")
 
@@ -34,10 +33,11 @@ class Checker:
         return False
 
     @staticmethod
-    def is_event_active(event_id: int, local_session: session) -> bool:
+    async def is_event_active(event_id: int, local_session: get_session) -> bool:
         time_now = datetime.now()
-        event_time_start = datetime.strptime(EventWorker.get(local_session=local_session,
-                                                             event_id=event_id)['time_start'], "%m/%d/%Y, %H:%M:%S")
+        event = await EventWorker.get(local_session=local_session,
+                                      event_id=event_id)
+        event_time_start = datetime.strptime(event.get('time_start'), "%m/%d/%Y, %H:%M:%S")
 
         if time_now < event_time_start and (event_time_start - time_now >= timedelta(config.TIME_TO_POST_EVENT)):
             return True
@@ -45,9 +45,9 @@ class Checker:
             return False
 
     @staticmethod
-    def is_user_banned(user_id: int, local_session: session) -> bool:
-        # with session(bind=engine) as local_session:
-        user_ban = UserWorker.get(user_id, local_session)['ban_date']
+    async def is_user_banned(user_isu_number: int, local_session: get_session) -> bool:
+        user = await UserWorker.get(user_isu_number, local_session)
+        user_ban = user.get('ban_date')
 
         if user_ban:
             if user_ban <= datetime.now():
@@ -57,7 +57,7 @@ class Checker:
         return False
 
     @staticmethod
-    def is_event_opened_for_want(event_id: int, local_session: session) -> bool:
+    async def is_event_opened_for_want(event_id: int, local_session: get_session) -> bool:
         """
         Check that event in period time for registration.\n
         :param local_session: session
@@ -65,12 +65,12 @@ class Checker:
         :return: bool
         """
 
-        event = EventWorker.get(local_session, event_id)
+        event = await EventWorker.get(local_session, event_id)
         time_now = datetime.now()
         event_time_start = datetime.strptime(dict(event)['time_start'], "%m/%d/%Y, %H:%M:%S")
 
         if event:
-            if (event_time_start < time_now) &\
+            if (event_time_start < time_now) & \
                     (time_now - event_time_start < days_finish_registration):
                 return True
             return False
@@ -79,7 +79,7 @@ class Checker:
             return False
 
     @staticmethod
-    def is_user_can_apply_event(user_id: int, local_session: session) -> bool:
+    async def is_user_can_apply_event(user_id: int, local_session: get_session) -> bool:
         """
         Check user has time on apply. User must have got notify.\n
         Notify gives time on make choice.\n
@@ -88,7 +88,8 @@ class Checker:
         :param user_id: int
         :return: bool
         """
-        user_time_select_finish = UserWorker.get(user_id, local_session)['time_select_finish']
+        user = await UserWorker.get(user_id, local_session)
+        user_time_select_finish = user.get('time_select_finish')
         time_now = datetime.now()
         if user_time_select_finish:
             if user_time_select_finish > time_now:
@@ -98,8 +99,8 @@ class Checker:
         return False
 
     @staticmethod
-    def is_user_on_event_want(user_id: int, event_id: int, local_session: session) -> bool:
-        event = EventWorker.get(local_session=local_session, event_id=event_id)
+    async def is_user_on_event_want(user_id: int, event_id: int, local_session: get_session) -> bool:
+        event = await EventWorker.get(local_session=local_session, event_id=event_id)
 
         if event:
             users_want = dict(event)['users_id_want']
@@ -111,7 +112,7 @@ class Checker:
             return False
 
     @staticmethod
-    def is_user_on_event_go(user_id: int, event_id: int, local_session: session) -> bool:
+    async def is_user_on_event_go(user_id: int, event_id: int, local_session: get_session) -> bool:
         """
         Check user in event field 'users_id_go'.\n
         :param local_session: session
@@ -119,7 +120,7 @@ class Checker:
         :param event_id: int
         :return: bool
         """
-        event = EventWorker.get(local_session=local_session, event_id=event_id)
+        event = await EventWorker.get(local_session=local_session, event_id=event_id)
 
         if event:
             users_go = dict(event)['users_id_go']
@@ -130,8 +131,8 @@ class Checker:
             return False
 
     @staticmethod
-    def is_any_free_places_event(event_id: int, local_session: session) -> bool:
-        event = EventWorker.get(local_session=local_session, event_id=event_id, all_events=False)
+    async def is_any_free_places_event(event_id: int, local_session: get_session) -> bool:
+        event = await EventWorker.get(local_session=local_session, event_id=event_id, all_events=False)
         users_id_go = event['users_id_go']
         free_places = int(event['people_count']) - len(users_id_go)
 

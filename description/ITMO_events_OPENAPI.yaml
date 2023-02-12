@@ -4,8 +4,35 @@ info:
   title: Itmo Events
   version: "1.0"
 paths:
-# ------------------User-------------------------
-  /api/user/add:
+###########################################
+#                   Health
+###########################################
+  /api/health/app:
+    get:
+      tags:
+        - Health
+      description: |
+        Check app health
+      responses:
+        "200":
+          description: App live
+        "400":
+          description: Error
+  /api/health/db:
+    get:
+      tags:
+        - Health
+      description: |
+        Check db health
+      responses:
+        "200":
+          description: db connected
+        "400":
+          description: db doesn't connected
+###########################################
+#                   User
+###########################################
+  /api/user/:
     post:
         tags:
           - User
@@ -21,7 +48,6 @@ paths:
             description: User added
           "400":
             description: User not added
-  /api/user/get/{user_id}:
     get:
         tags:
           - User
@@ -30,7 +56,7 @@ paths:
         parameters:
         - description: User ID
           in: path
-          name: user_id
+          name: user_isu_number
           required: true
           schema:
             type: integer
@@ -41,8 +67,7 @@ paths:
             description: User data
           "400":
             description: Error
-  /api/user/update:
-    post:
+    put:
         tags:
           - User
         description: |
@@ -57,7 +82,6 @@ paths:
             description: User updated
           "400":
             description: User not updated
-  /api/user/delete/{user_id}:
     delete:
         tags:
           - User
@@ -66,7 +90,7 @@ paths:
         parameters:
         - description: User ID
           in: path
-          name: user_id
+          name: user_isu_number
           required: true
           schema:
             type: integer
@@ -77,9 +101,11 @@ paths:
             description: User deleted
           "400":
             description: User not deleted
-            
-# ------------------EVENT-------------------------
-  /api/event/add:
+
+###########################################
+#                   Event
+###########################################
+  /api/event:
     post:
         tags:
           - Event
@@ -95,7 +121,6 @@ paths:
             description: Event added
           "400":
             description: Event not added
-  /api/event/get/{event_id}:
     get:
         tags:
           - Event
@@ -105,30 +130,24 @@ paths:
         - description: Event ID
           in: path
           name: event_id
-          required: true
+          required: false
           schema:
             type: integer
             format: id
           example: "12"
+        - description: Get all events or not
+          in: path
+          name: all
+          required: false
+          schema:
+            type: boolean
+          example: False
         responses:
           "200":
             description: Event data
           "400":
             description: Error
-  /api/event/get_all:
-    get:
-        tags:
-          - Event
-        description: |
-          Get all events
-        
-        responses:
-          "200":
-            description: Event data
-          "400":
-            description: Error
-  /api/event/update:
-    post:
+    put:
         tags:
           - Event
         description: |
@@ -143,7 +162,6 @@ paths:
             description: Event updated
           "400":
             description: Event not updated
-  /api/event/delete/{event_id}:
     delete:
         tags:
           - Event
@@ -164,8 +182,10 @@ paths:
           "400":
             description: Event not deleted
             
-# ------------------Notify-------------------------
-  /api/notify/add:
+###########################################
+#                   Notify
+###########################################
+  /api/notify:
     post:
         tags:
           - Notify
@@ -181,6 +201,25 @@ paths:
             description: Notify added
           "400":
             description: Notify not added
+    delete:
+      tags:
+        - Notify
+      description: |
+        Delete notify
+      parameters:
+        - description: Notify ID
+          in: path
+          name: notify_id
+          required: true
+          schema:
+            type: integer
+            format: id
+          example: "12"
+      responses:
+        "200":
+          description: Notify deleted
+        "400":
+          description: Notify not deleted
   /api/notify/send:
     post:
         tags:
@@ -193,29 +232,11 @@ paths:
             description: Notify was sent to user
           "400":
             description: Error
-  /api/notify/delete/{notify_id}:
-    delete:
-        tags:
-          - Notify
-        description: |
-          Delete notify
-        parameters:
-        - description: Notify ID
-          in: path
-          name: notify_id
-          required: true
-          schema:
-            type: integer
-            format: id
-          example: "12"
-        responses:
-          "200":
-            description: Notify deleted
-          "400":
-            description: Notify not deleted
 
-# ------------------News-------------------------
-  /api/news/add:
+###########################################
+#                   News
+###########################################
+  /api/news:
     post:
         tags:
           - News
@@ -231,7 +252,6 @@ paths:
             description: News added
           "400":
             description: News not added
-  /api/news/get/{news_id}:
     get:
         tags:
           - News
@@ -241,30 +261,24 @@ paths:
         - description: News ID
           in: path
           name: news_id
-          required: true
+          required: false
           schema:
             type: integer
             format: id
           example: "12"
+        - description: Get all news or not
+          in: path
+          name: all
+          required: false
+          schema:
+            type: boolean
+          example: False
         responses:
           "200":
             description: News data
           "400":
             description: Error
-  /api/news/get_all:
-    get:
-        tags:
-          - News
-        description: |
-          Get all news
-        
-        responses:
-          "200":
-            description: News data
-          "400":
-            description: Error
-  /api/news/update:
-    post:
+    put:
         tags:
           - News
         description: |
@@ -279,7 +293,6 @@ paths:
             description: News updated
           "400":
             description: News not updated
-  /api/news/delete/{news_id}:
     delete:
         tags:
           - News
@@ -299,19 +312,21 @@ paths:
             description: News deleted
           "400":
             description: News not deleted
-            
-# ------------------UserDesisions-------------------------
+
+###########################################
+#                UserDecision
+###########################################
   /api/event_registration:
     post:
         tags:
-          - Desisions
+          - Decisions
         description: |
           Add news
         requestBody:
           content:
             application/json:
               schema: 
-                $ref: "#/components/schemas/User_desision"
+                $ref: "#/components/schemas/User_decision"
         responses:
           "200":
             description: News added
@@ -320,14 +335,14 @@ paths:
   /api/event_cancel_registration:
     post:
         tags:
-          - Desisions
+          - Decisions
         description: |
           Get news
         requestBody:
           content:
             application/json:
               schema: 
-                $ref: "#/components/schemas/User_desision"
+                $ref: "#/components/schemas/User_decision"
         responses:
           "200":
             description: News data
@@ -336,14 +351,14 @@ paths:
   /api/apply_event:
     post:
         tags:
-          - Desisions
+          - Decisions
         description: |
           Get all news
         requestBody:
           content:
             application/json:
               schema: 
-                $ref: "#/components/schemas/User_desision"
+                $ref: "#/components/schemas/User_decision"
         responses:
           "200":
             description: News data
@@ -352,14 +367,14 @@ paths:
   /api/decline_event:
     post:
         tags:
-          - Desisions
+          - Decisions
         description: |
           Update news
         requestBody:
           content:
             application/json:
               schema: 
-                $ref: "#/components/schemas/User_desision"
+                $ref: "#/components/schemas/User_decision"
         responses:
           "200":
             description: News updated
@@ -551,7 +566,7 @@ components:
             time: 09-15-2022 00:01:00
           news_id: 12
 
-# -------------user_desision_schemas-----------
+# -------------user_decision_schemas-----------
     User_desision:
       type: object
       required:

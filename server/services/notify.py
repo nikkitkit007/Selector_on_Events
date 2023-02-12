@@ -6,7 +6,7 @@ from data_base.base import session
 
 class NotifySender:
     @staticmethod
-    def send_notifies(user_id: int, event_id: int, local_session: session):
+    async def send_notifies(user_id: int, event_id: int, local_session: session):
         notifies = Notify.get_for_event(event_id, local_session)
         for notify in notifies:
             notify_id = notify['notify_id']

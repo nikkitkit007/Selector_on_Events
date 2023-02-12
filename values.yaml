@@ -1,0 +1,35 @@
+vault:
+  enabled: true
+  vaultAddress: "https://vault.services.itmo.space"
+  roleName: "itmo-events"
+  mountPath: kubernetes
+  defaultPath: student-projects/data/itmo-events/backend
+  variables:
+    - name: POSTGRES_DB
+    - name: POSTGRES_USER
+    - name: POSTGRES_PASSWORD
+    - name: POSTGRES_HOST
+    - name: POSTGRES_PORT
+    - name: CLIENT_ID
+    - name: CLIENT_SECRET
+configVariables:
+  FLASK_APP: wsgi.py
+  APP_HOST: events.itmo.space
+  APP_PORT: 8080
+  TBL_EVENTS: event
+  TBL_USERS: user
+  TBL_NOTIFIES: notify
+  TBL_NEWS: news
+  TBL_TOKEN: token
+  JWT_VERIFY: 0
+  REDIRECT_URI: https://events.itmo.space/health/app
+  SCOPE: ""
+networkAccess:
+  external:
+    enabled: true
+    domain: events.itmo.space
+    pathPrefix: /api
+    ingressClassName: itmo-events
+  healthcheck:
+    enabled: false
+replicas: 1

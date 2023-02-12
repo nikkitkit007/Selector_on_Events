@@ -1,11 +1,9 @@
 import sqlalchemy as sa
-from data_base.base import Base, session, settings
-
-from server import info_logger
+from data_base import DeclarativeBase, DefaultSettings
 
 
-class News(Base):
-    __tablename__ = settings.TBL_NEWS
+class News(DeclarativeBase):
+    __tablename__ = DefaultSettings().TBL_NEWS
 
     news_id = sa.Column('news_id', sa.Integer, primary_key=True)
     header = sa.Column('header', sa.String(127), nullable=False)

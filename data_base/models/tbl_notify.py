@@ -1,10 +1,10 @@
 import sqlalchemy as sa
 
-from data_base.base import Base, settings
+from data_base import DeclarativeBase, DefaultSettings
 
 
-class Notify(Base):
-    __tablename__ = settings.TBL_NOTIFIES
+class Notify(DeclarativeBase):
+    __tablename__ = DefaultSettings().TBL_NOTIFIES
 
     notify_id = sa.Column('notify_id', sa.Integer, primary_key=True)
     event_id = sa.Column('event_id', sa.Integer, nullable=False)

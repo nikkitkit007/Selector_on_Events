@@ -6,7 +6,7 @@ from tests.conftest import cookies
 
 class TestUser:
     def test_add(self, get_base_url, get_one_user):
-        method = "/api/user/add"
+        method = "/api/user"
         user = get_one_user
 
         response = requests.post(get_base_url + method, json=user, cookies=cookies)
@@ -14,7 +14,7 @@ class TestUser:
         assert response.status_code == status.HTTP_200_OK
 
     def test_get(self, get_base_url, get_one_user):
-        method = "/api/user/get"
+        method = "/api/user"
         user_isu = get_one_user["user_isu_number"]
         user_isu_dict = {'user_isu_number': user_isu}
 
@@ -23,15 +23,15 @@ class TestUser:
         assert response.status_code == status.HTTP_200_OK
 
     def test_update(self, get_base_url, get_update_user):
-        method = "/api/user/update"
+        method = "/api/user"
         data_update = get_update_user
 
-        response = requests.post(get_base_url + method, json=data_update, cookies=cookies)
+        response = requests.put(get_base_url + method, json=data_update, cookies=cookies)
 
         assert response.status_code == status.HTTP_200_OK
 
     def test_delete(self, get_base_url, get_one_user):
-        method = "/api/user/delete"
+        method = "/api/user"
 
         user_isu_number = get_one_user["user_isu_number"]
         user_isu_number_dict = {'user_isu_number': user_isu_number}

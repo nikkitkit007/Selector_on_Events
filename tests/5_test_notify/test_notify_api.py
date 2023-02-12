@@ -9,7 +9,7 @@ notify_id = 1
 
 class TestEvent:
     def test_add(self, get_base_url, get_one_notify):
-        method = "/api/notify/add"
+        method = "/api/notify"
         notify = get_one_notify
 
         response = requests.post(get_base_url + method, json=notify, cookies=cookies)
@@ -17,7 +17,7 @@ class TestEvent:
         assert response.status_code == status.HTTP_200_OK
 
     def test_delete(self, get_base_url):
-        method = "/api/notify/delete"
+        method = "/api/notify"
 
         # event_id = get_one_event["event_id"]
         notify_id_dict = {'notify_id': notify_id}

@@ -15,26 +15,14 @@ class DefaultSettings(BaseSettings):
 
     I need three environments: for development, testing and production.
     """
-    TEST = bool(environ.get("TEST", "False"))
-    if TEST:
-        APP_HOST = "127.0.0.1"
-        APP_PORT = 8080
+    APP_HOST: str = environ.get("APP_HOST", "127.0.0.1")
+    APP_PORT: int = int(environ.get("APP_PORT", 8080))
 
-        POSTGRES_DB = "test_itmo_event"
-        POSTGRES_HOST = "127.0.0.1"
-        POSTGRES_USER = "test"
-        POSTGRES_PORT = "5432"
-        POSTGRES_PASSWORD = "test"
-
-    else:
-        APP_HOST: str = environ.get("APP_HOST", "127.0.0.1")
-        APP_PORT: int = int(environ.get("APP_PORT", 8080))
-
-        POSTGRES_DB: str = environ.get("POSTGRES_DB", "ITMO_Event")
-        POSTGRES_HOST: str = environ.get("POSTGRES_HOST", "127.0.0.1")
-        POSTGRES_USER: str = environ.get("POSTGRES_USER", "postgres")
-        POSTGRES_PORT: int = int(environ.get("POSTGRES_PORT", "5432"))
-        POSTGRES_PASSWORD: str = environ.get("POSTGRES_PASSWORD", "postgres")
+    POSTGRES_DB: str = environ.get("POSTGRES_DB", "ITMO_Event")
+    POSTGRES_HOST: str = environ.get("POSTGRES_HOST", "127.0.0.1")
+    POSTGRES_USER: str = environ.get("POSTGRES_USER", "postgres")
+    POSTGRES_PORT: str = str(environ.get("POSTGRES_PORT", "5432"))
+    POSTGRES_PASSWORD: str = environ.get("POSTGRES_PASSWORD", "postgres")
 
     PATH_PREFIX: str = environ.get("PATH_PREFIX", "")  # api/v1
 
@@ -67,7 +55,7 @@ class DefaultSettings(BaseSettings):
         """
         Get uri for connection with database.
         """
-        return "postgresql://{user}:{password}@{host}:{port}/{database}".format(
+        return "postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}".format(
             **self.database_settings,
         )
 

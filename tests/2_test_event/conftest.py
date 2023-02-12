@@ -4,8 +4,6 @@ from datetime import datetime, timedelta
 
 
 def generate_event_time() -> dict:
-    # time_start = "09/25/2022, 00:01:10"
-    # time_end = "09/25/2022, 00:01:10"
     time_start = datetime.now() - timedelta(1)
     time_end = datetime.now() + timedelta(9)
     time = {"time_start": str(time_start),
@@ -35,12 +33,17 @@ def get_one_event():
 def get_update_event():
     event_name_update = "update_name"
     event_id = 1
+    time = generate_event_time()
+
+    time_start = time["time_start"]
+    time_end = time["time_end"]
+
     update_event = {'event_id': event_id,
                     'event_data_to_update':
                         {
                             'event_name': event_name_update,
-                            'time_start': '09-08-2022 00:00:00',
-                            'time_end': '09-10-2022 00:00:10',
+                            'time_start': time_start,
+                            'time_end': time_end,
                             'description': 'Simple test was update',
                             'url_pdf': 'lol/lol2',
                             'people_count': 10,

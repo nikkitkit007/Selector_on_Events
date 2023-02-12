@@ -1,10 +1,10 @@
 import sqlalchemy as sa
 
-from data_base.base import Base, settings
+from data_base import DeclarativeBase, DefaultSettings
 
 
-class Event(Base):
-    __tablename__ = settings.TBL_EVENTS
+class Event(DeclarativeBase):
+    __tablename__ = DefaultSettings().TBL_EVENTS
 
     event_id = sa.Column('event_id', sa.Integer, primary_key=True)
     event_name = sa.Column('event_name', sa.String(127), nullable=False)
@@ -13,7 +13,7 @@ class Event(Base):
     description = sa.Column('description', sa.String)
     url_pdf = sa.Column('url_pdf', sa.String(255))
     people_count = sa.Column('people_count', sa.Integer, nullable=False)
-    coefficient = sa.Column('coefficient', sa.String, default=1)
+    coefficient = sa.Column('coefficient', sa.Integer, default=1)
     users_id_want = sa.Column('users_id_want', sa.ARRAY(sa.Integer),
                               default={})
     users_id_go = sa.Column('users_id_go', sa.ARRAY(sa.Integer),

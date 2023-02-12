@@ -1,16 +1,12 @@
+from sqlalchemy import select, insert, and_, update, delete
 from datetime import datetime
 
-from data_base.base import session
+from data_base.base import get_session
 from server import info_logger, error_logger
 from data_base.models.tbl_notify import Notify
 
 
 class NotifyWorker(Notify):
-    def __init__(self, notify_data: dict):
-        self.event_id = notify_data['event_id']
-        self.time = notify_data['time']
-        self.notify_header = notify_data['notify_header']
-        self.notify_data = notify_data['notify_data']
 
     def __repr__(self):
         return f"<Notify (notify_header: {self.notify_header}," \
@@ -26,43 +22,50 @@ class NotifyWorker(Notify):
         return atts_dict
 
     @staticmethod
-    def add(notify_to_add: dict, local_session: session):
+    async def add(notify_to_add: dict, local_session: get_session):
         notify_to_add['time'] = datetime.now()
-        local_session.add(NotifyWorker(notify_to_add))
+
+        query = insert(Notify).values(notify_to_add)
+        await local_session.execute(query)
 
     @staticmethod
-    def get(notify_id: int, local_session: session):
-        notify = local_session.query(NotifyWorker).filter(NotifyWorker.notify_id == notify_id).first()
+    async def get(notify_id: int, local_session: get_session):
+        query = select(Notify).where(Notify.notify_id == notify_id).limit(1)
+        notify = await local_session.execute(query)
+        notify = notify.scalars().first()
 
         if notify:
-            return notify.get_dict()
-        return {}
+            return Notify.get_dict(notify)
+        else:
+            return {}
 
     @staticmethod
-    def get_for_event(event_id: int, local_session: session):
-        notifies = local_session.query(NotifyWorker).filter(NotifyWorker.event_id == event_id).all()
+    async def get_for_event(event_id: int, local_session: get_session):
+        query = select(Notify).where(Notify.event_id == event_id)
+        notifies = await local_session.execute(query)
+        notifies = notifies.scalars().all
+
         all_notifies = []
 
         for notify in notifies:
-            all_notifies.append(notify.get_dict())
+            all_notifies.append(Notify.get_dict(notify))
 
         return all_notifies
 
     @staticmethod
-    def update(notify_id: int, notify_data_to_update: dict, local_session: session):
-        notify_to_update = local_session.query(NotifyWorker).filter(NotifyWorker.notify_id == notify_id).first()
-        if notify_to_update:
-            notify_to_update.time = notify_data_to_update["time"]
-            notify_to_update.notify_header = notify_data_to_update["notify_header"]
-            notify_to_update.notify_data = notify_data_to_update["notify_data"]
-
-        else:
-            info_logger.error(f'Notify {notify_id} does not exist!')
+    async def update(notify_id: int, notify_data_to_update: dict, local_session: get_session):
+        query = update(Notify).where(Notify.notify_id == notify_id).values(notify_data_to_update)
+        await local_session.execute(query)
+        # notify_to_update = await local_session.query(NotifyWorker).filter(NotifyWorker.notify_id == notify_id).first()
+        # if notify_to_update:
+        #     notify_to_update.time = notify_data_to_update["time"]
+        #     notify_to_update.notify_header = notify_data_to_update["notify_header"]
+        #     notify_to_update.notify_data = notify_data_to_update["notify_data"]
+        #
+        # else:
+        #     info_logger.error(f'Notify {notify_id} does not exist!')
 
     @staticmethod
-    def delete(notify_id: int, local_session: session):
-        notify_to_delete = local_session.query(NotifyWorker).filter(NotifyWorker.notify_id == notify_id).first()
-        if notify_to_delete:
-            local_session.delete(notify_to_delete)
-        else:
-            info_logger.error(f'Notify {notify_id} does not exist!')
+    async def delete(notify_id: int, local_session: get_session):
+        query = delete(Notify).where(Notify.notify_id == notify_id)
+        await local_session.execute(query)

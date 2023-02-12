@@ -1,4 +1,4 @@
-"""empty message
+"""Init migration
 
 Revision ID: 1f0b50644442
 Revises: 
@@ -11,7 +11,7 @@ from sqlalchemy.dialects.postgresql import (INTEGER, TIMESTAMP, BOOLEAN, VARCHAR
 from alembic import op
 import datetime
 from sqlalchemy.dialects import postgresql
-from data_base.base import settings
+from data_base import DefaultSettings
 
 
 # revision identifiers, used by Alembic.
@@ -19,6 +19,8 @@ revision = '1f0b50644442'
 down_revision = None
 branch_labels = None
 depends_on = None
+
+settings = DefaultSettings()
 
 
 def upgrade():
@@ -32,7 +34,7 @@ def upgrade():
         Column('description', VARCHAR),
         Column('url_pdf', VARCHAR(255)),
         Column('people_count', INTEGER, nullable=False),
-        Column('coefficient', VARCHAR, default=1),
+        Column('coefficient', INTEGER, default=1),
         Column('users_id_want', ARRAY(INTEGER), default={}),
         Column('users_id_go', ARRAY(INTEGER), default={}),
         Column('image', VARCHAR(127)),
